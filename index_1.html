@@ -1,0 +1,842 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#2F5BEA"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="受験ドリル"><title>受験ドリル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Maru+Gothic:wght@700;900&display=swap">
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style><style>
+/* Layout: 方眼ノート風の一列レイアウト。スマホ縦持ち前提、下にタブバー。 */
+:root{
+  --bg:#F2F5FB; --grid:#DCE3F2; --card:#FFFFFF; --ink:#18264A; --ink2:#5A678A; --line:#CBD3E8;
+  --blue:#2F5BEA; --blue-ink:#FFFFFF; --mark:#FFD84A; --mark-ink:#18264A;
+  --good:#17895D; --good-bg:#E3F5EC; --bad:#CF3F38; --bad-bg:#FCE9E7;
+  --f-disp:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --f-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10162B; --grid:#1B2442; --card:#192142; --ink:#E9EDFA; --ink2:#9BA7C9; --line:#2D3963;
+    --blue:#8AA4FF; --blue-ink:#0F1630; --mark:#F2CB3F; --mark-ink:#10162B;
+    --good:#4FD1A0; --good-bg:#12372D; --bad:#FF8A82; --bad-bg:#40201F; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10162B; --grid:#1B2442; --card:#192142; --ink:#E9EDFA; --ink2:#9BA7C9; --line:#2D3963;
+  --blue:#8AA4FF; --blue-ink:#0F1630; --mark:#F2CB3F; --mark-ink:#10162B;
+  --good:#4FD1A0; --good-bg:#12372D; --bad:#FF8A82; --bad-bg:#40201F; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.7;
+  padding-inline:16px; padding-block:16px 104px;
+}
+.app{max-width:560px;margin-inline:auto;display:flex;flex-direction:column;gap:16px;min-width:0}
+h1,h2,h3{font-family:var(--f-disp);margin:0;line-height:1.35;text-wrap:balance}
+h1{font-size:26px;font-weight:900}
+h2{font-size:19px;font-weight:900}
+.mark{background:linear-gradient(transparent 58%,var(--mark) 58%);padding-inline:2px}
+.sub{color:var(--ink2);font-size:13px;margin:0}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.row{display:flex;gap:12px;align-items:center;min-width:0}
+.wrap{flex-wrap:wrap}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:700;background:var(--blue);color:var(--blue-ink);font-size:16px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.block{width:100%}
+.btn:active{transform:translateY(1px)}
+.chip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tag{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink2)}
+.bar{height:12px;border-radius:99px;background:var(--grid);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--mark);border-radius:99px;transition:width .4s}
+.bar.blue>i{background:var(--blue)}
+.big{font-family:var(--f-num);font-size:44px;font-weight:600;line-height:1}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.subj{display:flex;flex-direction:column;gap:10px;text-align:left;width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px}
+.subj .name{font-family:var(--f-disp);font-weight:900;font-size:22px}
+.subj .pct{font-family:var(--f-num);font-size:13px;color:var(--ink2)}
+/* quiz */
+.qtop{display:flex;align-items:center;gap:12px}
+.qcard{padding:20px 18px}
+.qtext{font-size:19px;font-weight:700;line-height:1.7;margin:8px 0 0;overflow-wrap:anywhere}
+.choices{display:flex;flex-direction:column;gap:10px}
+.ch{display:flex;gap:12px;align-items:center;text-align:left;width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px}
+.ch .k{flex:none;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink2);display:grid;place-items:center;font-size:14px;font-weight:700}
+.ch span.t{min-width:0;overflow-wrap:anywhere}
+.ch.ok{border-color:var(--good);background:var(--good-bg)}
+.ch.ok .k{background:var(--good);border-color:var(--good);color:var(--bg)}
+.ch.ng{border-color:var(--bad);background:var(--bad-bg)}
+.ch.ng .k{background:var(--bad);border-color:var(--bad);color:var(--bg)}
+.ch:disabled{cursor:default}
+.fb{border-radius:12px;padding:14px 16px}
+.fb.ok{background:var(--good-bg);border:1.5px solid var(--good)}
+.fb.ng{background:var(--bad-bg);border:1.5px solid var(--bad)}
+.fb b{font-family:var(--f-disp);font-size:17px}
+.fb p{margin:6px 0 0;font-size:14px}
+/* tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1.5px solid var(--line);display:flex;justify-content:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs .in{display:flex;gap:4px;width:100%;max-width:560px}
+.tab{flex:1;background:none;border:0;border-radius:10px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:700;color:var(--ink2)}
+.tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-current="page"]{color:var(--blue);background:var(--grid)}
+.badge{background:var(--bad);color:var(--bg);border-radius:99px;font-family:var(--f-num);font-size:11px;padding:0 6px;margin-left:4px}
+/* lists */
+details.rv{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:12px 14px}
+details.rv summary{cursor:pointer;font-weight:700;overflow-wrap:anywhere}
+details.rv .ans{margin:8px 0 0;color:var(--good);font-weight:700}
+details.rv .ex{margin:4px 0 0;font-size:14px;color:var(--ink2)}
+.urow{display:grid;grid-template-columns:5.5em minmax(0,1fr) 4.5em;gap:10px;align-items:center;font-size:14px}
+.urow .v{text-align:right;font-family:var(--f-num);font-size:13px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.empty{text-align:center;color:var(--ink2);padding:28px 12px}
+svg text{font-family:var(--f-num);font-size:10px;fill:var(--ink2)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+/* メモ用紙 */
+.pad{display:flex;flex-direction:column;gap:8px}
+.pad .tools{display:flex;gap:8px;align-items:center}
+.pad .tools .chip{padding:5px 12px}
+.sheet{background-color:var(--card);background-image:linear-gradient(var(--grid) 1px,transparent 1px);background-size:100% 32px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
+.sheet canvas{display:block;width:100%;height:280px;touch-action:none;color:var(--ink);cursor:crosshair}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.passage{white-space:pre-line;font-size:15px;line-height:1.85;overflow-wrap:anywhere;margin:0}
+.qtext{white-space:pre-line}
+.aud{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.ansbox{width:100%;font-family:var(--f-num);font-size:26px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);text-align:right;min-height:56px}
+.ansbox:disabled{opacity:1}
+.keypad{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.keypad button{padding:14px 0;font-family:var(--f-num);font-size:20px;font-weight:600;border:1.5px solid var(--line);background:var(--card);border-radius:12px}
+.keypad button.pri{background:var(--blue);color:var(--blue-ink);border-color:var(--blue);font-family:var(--f-body);font-size:15px}
+.keypad button.sm{font-family:var(--f-body);font-size:14px}
+.mtop{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px}
+.timer{font-family:var(--f-num);font-size:24px;font-weight:600}
+.timer.warn{color:var(--bad)}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px}
+.qgrid button{padding:8px 0;border:1.5px solid var(--line);border-radius:8px;background:var(--card);font-family:var(--f-num);font-size:14px}
+.qgrid button.done{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qgrid button.cur{outline:3px solid var(--blue);outline-offset:1px}
+.ch.sel{border-color:var(--blue);background:var(--grid)}
+.ch.sel .k{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.tabs[hidden]{display:none}
+.sec{font-family:var(--f-disp);font-weight:900;font-size:15px}
+.mk{font-family:var(--f-num);font-weight:600}
+.mk.ok{color:var(--good)}.mk.ng{color:var(--bad)}
+.hist{display:grid;grid-template-columns:5em 3.5em minmax(0,1fr) 3.5em;gap:10px;align-items:center;font-size:14px}
+.notice{background:var(--grid);border-radius:10px;padding:10px 12px;font-size:13px}
+.rkrow{display:grid;grid-template-columns:2.2em minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--card)}
+.rkrow.you{border-color:var(--blue);background:var(--grid)}
+.rkn{font-family:var(--f-num);font-weight:600;text-align:center;border-radius:8px;padding:2px 0}
+.rkn.t{background:var(--mark);color:var(--mark-ink)}
+.rkname{overflow-wrap:anywhere;font-weight:500}
+.rkv{font-size:18px;font-weight:600}
+.rkv small{font-size:12px;color:var(--ink2);margin-left:2px;font-weight:400}
+.tab[hidden]{display:none}
+.grid2>:last-child:nth-child(odd){grid-column:1/-1}
+</style></head><body>
+
+<div class="app" id="app"></div>
+<nav class="tabs" id="tabs" aria-label="メニュー"><div class="in">
+  <button class="tab" data-act="tab" data-v="home"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></svg>ホーム</button>
+  <button class="tab" data-act="tab" data-v="review"><svg viewBox="0 0 24 24"><path d="M4 5h12a4 4 0 014 4v10H8a4 4 0 01-4-4z"/><path d="M8 9h8M8 13h5"/></svg><span>復習<span id="rvbadge"></span></span></button>
+  <button class="tab" data-act="tab" data-v="rank" id="tabrank" hidden><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 6H4v2a3 3 0 003 3M17 6h3v2a3 3 0 01-3 3"/></svg>ランキング</button>
+  <button class="tab" data-act="tab" data-v="records"><svg viewBox="0 0 24 24"><path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/></svg>記録</button>
+</div></nav>
+
+<script>
+/* ===== 問題データ [単元, 問題, 正解, [誤答×3], 解説] ===== */
+var RAW = {
+eng: { name:'英語', units:['単語','文法','熟語','会話'], items:[
+['単語','improve の意味はどれ？','改善する・上達する',['輸入する','想像する','証明する'],'improve は「よくする、上達する」。名詞は improvement。'],
+['単語','decide の意味はどれ？','決める',['忘れる','集める','運ぶ'],'decide は「決める」。名詞は decision（決定）。'],
+['単語','environment の意味はどれ？','環境',['経験','政府','娯楽'],'environment は「環境」。長文のテーマによく出ます。'],
+['単語','difficult の意味はどれ？','難しい',['簡単な','おもしろい','古い'],'difficult は「難しい」。反対の意味は easy。'],
+['単語','borrow の意味はどれ？','借りる',['貸す','返す','買う'],'borrow は「借りる」、lend は「貸す」。'],
+['単語','dangerous の意味はどれ？','危険な',['安全な','有名な','必要な'],'dangerous は「危険な」。danger（危険）＋ -ous。'],
+['単語','increase の意味はどれ？','増える・増やす',['減る','止まる','はじまる'],'increase は「増える」。反対は decrease（減る）。'],
+['単語','believe の意味はどれ？','信じる',['愛する','選ぶ','教える'],'believe は「信じる」。I believe you. のように使います。'],
+['文法','She（　）tennis every Sunday.','plays',['play','playing','played'],'主語が She（三人称単数）で現在の習慣なので、動詞に s がついた plays。'],
+['文法','I（　）my homework when my mother came home.','was doing',['do','did','have done'],'「帰ってきたとき〜していた」は過去進行形 was/were＋ing。'],
+['文法','This book is（　）than that one.','more interesting',['most interesting','interesting','much interesting'],'interesting は長い単語なので more をつけて比較級にします。'],
+['文法','I have lived in Osaka（　）2015.','since',['for','during','from'],'「〜から（ずっと）」と起点を示すときは since。期間には for を使います。'],
+['文法','English is（　）in many countries.','spoken',['speak','spoke','speaking'],'「話されている」は受け身 be＋過去分詞。speak の過去分詞は spoken。'],
+['文法','I want（　）a doctor.','to be',['be','being','am'],'want to ～ で「～したい」。to のあとは動詞の原形 be。'],
+['文法','He is the boy（　）lives next door.','who',['which','whose','what'],'先行詞が人（the boy）で主語の働きをするので関係代名詞は who。'],
+['文法','If it（　）tomorrow, we will stay home.','rains',['rain','will rain','rained'],'if の中は未来のことでも現在形を使います。主語 it なので rains。'],
+['文法','Thank you for（　）me.','helping',['help','helped','to help'],'前置詞 for のあとは動名詞（～ing）。'],
+['文法','The book（　）by Soseki is famous.','written',['writing','wrote','write'],'「漱石によって書かれた本」は過去分詞の後置修飾。write の過去分詞は written。'],
+['熟語','look forward to ～ の意味はどれ？','～を楽しみに待つ',['～を探す','～に似ている','～をあきらめる'],'I\'m looking forward to your visit.（あなたの訪問を楽しみにしています）のように使います。'],
+['熟語','take care of ～ の意味はどれ？','～の世話をする',['～を連れて行く','～を気にしない','～を借りる'],'take care of my dog（犬の世話をする）。'],
+['熟語','be good at ～ の意味はどれ？','～が得意だ',['～が好きだ','～が苦手だ','～に似ている'],'be good at math（数学が得意）。反対は be poor at ～。'],
+['熟語','get up の意味はどれ？','起きる',['着く','乗る','出かける'],'get up at six（6時に起きる）。'],
+['熟語','in front of ～ の意味はどれ？','～の前に',['～の後ろに','～の隣に','～の中に'],'in front of the station（駅の前に）。'],
+['熟語','How about going to the park? の意味はどれ？','公園に行くのはどう？',['公園はどこ？','公園で何をした？','公園は好き？'],'How about ～ing? は「～するのはどう？」と相手を誘う表現です。'],
+['熟語','I used to play soccer. の意味はどれ？','昔はよくサッカーをしていた。',['サッカーを使った。','今サッカーをしている。','サッカーをするつもりだ。'],'used to ～ は「以前はよく～したものだ」（今はしていない）。'],
+['会話','Would you like some tea?　に対する答えとして自然なのはどれ？','Yes, please.',['You\'re welcome.','I\'m sorry.','See you.'],'Would you like ～? は物をすすめる表現。「はい、お願いします」は Yes, please.'],
+['会話','How are you?　に対する答えとして自然なのはどれ？','I\'m fine, thank you.',['It\'s Monday.','I\'m twelve.','Nice to meet you.'],'How are you? は調子をたずねる表現。fine（元気）と答えます。'],
+['会話','May I use your pen?　に対する答えとして自然なのはどれ？','Sure. Here you are.',['Yes, you may not.','I\'m using it, thank you.','Nice to meet you.'],'許可を求められて「いいですよ。どうぞ」は Sure. Here you are.'],
+['会話','What time is it?　に対する答えとして自然なのはどれ？','It\'s three o\'clock.',['It\'s Sunday.','It\'s sunny.','It\'s my watch.'],'時刻をたずねる文には It\'s ～ o\'clock. で答えます。'],
+['会話','Thank you very much.　に対する答えとして自然なのはどれ？','You\'re welcome.',['Excuse me.','Good luck.','I\'m sorry.'],'お礼への返事は You\'re welcome.（どういたしまして）。'],
+['会話','I\'m sorry I\'m late.　に対する答えとして自然なのはどれ？','That\'s all right.',['You\'re welcome.','Me, too.','Good morning.'],'謝られたときの「大丈夫ですよ」は That\'s all right. / No problem.']
+]},
+math: { name:'数学', units:['正負の数・式','方程式','展開・因数分解','平方根','関数','図形','確率・データ'], items:[
+['正負の数・式','(−3)×(−4)+2 を計算すると？','14',['10','−10','−14'],'(−3)×(−4)=12（負×負は正）。12+2=14。'],
+['正負の数・式','−5−(−8) を計算すると？','3',['−13','13','−3'],'引く数の符号が変わるので −5+8=3。'],
+['正負の数・式','3a−2(a−4) を簡単にすると？','a+8',['a−8','5a+8','5a−8'],'かっこをはずして 3a−2a+8 となり、a+8。−2×(−4)=+8 に注意。'],
+['正負の数・式','3²−2×4 を計算すると？','1',['10','−1','7'],'累乗が先、次にかけ算。9−8=1。'],
+['方程式','3x−5=10 を解くと？','x=5',['x=3','x=15','x=−5'],'3x=15 より x=5。'],
+['方程式','2x+7=3x−1 を解くと？','x=8',['x=6','x=−8','x=2'],'x を左に集めると 7+1=3x−2x。よって x=8。'],
+['方程式','x/2+3=7 を解くと？','x=8',['x=2','x=5','x=20'],'x/2=4 なので両辺を2倍して x=8。'],
+['方程式','連立方程式 x+y=5, x−y=1 の解は？','x=3, y=2',['x=2, y=3','x=4, y=1','x=1, y=4'],'2式を足して 2x=6、x=3。x+y=5 に代入して y=2。'],
+['方程式','連立方程式 2x+y=7, x−y=2 の解は？','x=3, y=1',['x=2, y=3','x=1, y=5','x=4, y=−1'],'2式を足すと 3x=9、x=3。x−y=2 に代入して y=1。'],
+['方程式','二次方程式 x²−5x+6=0 の解は？','x=2, 3',['x=−2, −3','x=1, 6','x=−1, 6'],'(x−2)(x−3)=0 と因数分解できるので x=2, 3。'],
+['方程式','二次方程式 x²=16 の解は？','x=±4',['x=4','x=8','x=±8'],'平方根をとると x=±√16=±4。マイナスも忘れずに。'],
+['方程式','二次方程式 x²+2x−3=0 の解は？','x=−3, 1',['x=3, −1','x=−3, −1','x=3, 1'],'(x+3)(x−1)=0 より x=−3, 1。'],
+['展開・因数分解','(x+3)(x−2) を展開すると？','x²+x−6',['x²−x−6','x²+5x−6','x²+x+6'],'x²−2x+3x−6 = x²+x−6。'],
+['展開・因数分解','(x+4)² を展開すると？','x²+8x+16',['x²+16','x²+4x+16','x²+8x+8'],'(a+b)²=a²+2ab+b²。2×4=8、4²=16。'],
+['展開・因数分解','x²−9 を因数分解すると？','(x+3)(x−3)',['(x−3)²','(x+3)²','(x+9)(x−1)'],'a²−b²=(a+b)(a−b) の形。9=3²。'],
+['展開・因数分解','x²+5x+6 を因数分解すると？','(x+2)(x+3)',['(x+1)(x+6)','(x−2)(x−3)','(x+2)(x−3)'],'足して5、かけて6になる2数は 2 と 3。'],
+['平方根','√50 を a√b の形にすると？','5√2',['2√5','25√2','10√5'],'√50=√(25×2)=5√2。'],
+['平方根','√3×√12 を計算すると？','6',['√15','3√2','36'],'√(3×12)=√36=6。'],
+['平方根','√18+√2 を計算すると？','4√2',['√20','3√2','5√2'],'√18=3√2 なので 3√2+√2=4√2。'],
+['関数','y=2x+1 で x=3 のとき y の値は？','7',['5','6','9'],'y=2×3+1=7。'],
+['関数','y は x に比例し、x=2 のとき y=6。x=5 のとき y は？','15',['10','12','30'],'比例定数は 6÷2=3。y=3x に x=5 を代入して15。'],
+['関数','y=x² で x=−3 のとき y の値は？','9',['−9','6','−6'],'(−3)²=9。2乗すると負の数も正になります。'],
+['関数','直線 y=2x+1 の傾きは？','2',['1','3','1/2'],'y=ax+b の a が傾き、b が切片。'],
+['関数','y は x に反比例し、x=2 のとき y=6。x=4 のとき y は？','3',['12','1.5','8'],'xy=12 で一定。x=4 なら y=12÷4=3。'],
+['図形','半径3cmの円の面積は？','9π cm²',['6π cm²','3π cm²','18π cm²'],'面積=π×半径²=π×3²=9π。'],
+['図形','三角形の内角の和は？','180°',['90°','360°','270°'],'三角形の内角の和は 180°。'],
+['図形','直角をはさむ2辺が3cmと4cmの直角三角形。斜辺は？','5cm',['7cm','6cm','√7cm'],'三平方の定理 3²+4²=25 より斜辺は5。'],
+['図形','六角形の内角の和は？','720°',['540°','900°','1080°'],'n角形の内角の和は 180°×(n−2)。180×4=720。'],
+['図形','半径6cmの円の円周の長さは？','12π cm',['6π cm','36π cm','24π cm'],'円周=2π×半径=12π。'],
+['図形','斜辺13cm、他の1辺が5cmの直角三角形。残りの辺は？','12cm',['8cm','√194cm','10cm'],'三平方の定理 13²−5²=169−25=144。√144=12。'],
+['確率・データ','サイコロを1回ふって偶数が出る確率は？','1/2',['1/3','1/6','2/3'],'偶数は 2,4,6 の3通り。3/6=1/2。'],
+['確率・データ','コインを2枚投げて2枚とも表が出る確率は？','1/4',['1/2','1/3','2/3'],'全部で 表表・表裏・裏表・裏裏 の4通り。そのうち1通り。'],
+['確率・データ','データ 4, 6, 8, 10 の平均値は？','7',['6','8','28'],'合計28を個数4でわって7。'],
+['確率・データ','赤玉3個、白玉2個の袋から1個とる。赤玉が出る確率は？','3/5',['2/5','1/2','3/2'],'全部で5個、赤は3個なので 3/5。']
+]}};
+
+var KEY='juken-drill-v1', MKEY='juken-mock-v1', LETTERS=['ア','イ','ウ','エ'];
+var SUBJ=['jpn','math','eng','sci','soc'];
+var IDP={eng:'E',math:'M',jpn:'J',sci:'S',soc:'C'};
+var RANK_URL='https://script.google.com/macros/s/AKfycbzECDuFJA4xUEVjgz1nXYmMrw8v4RAaKaVBC12TvaMd3EK5HXStA4C4AJdH7232h-9d/exec';
+RAW.eng.units=['単語','文法','熟語','会話','並べ替え','長文','リスニング'];
+RAW.jpn={name:'国語',units:['漢字読み','漢字書き','語句','文法','古文','現代文'],items:[]};
+RAW.sci={name:'理科',units:['物理','化学','生物','地学'],items:[]};
+RAW.soc={name:'社会',units:['地理','歴史','公民'],items:[]};
+var NEWQ=[{"s": "math", "u": "正負の数・式", "q": "−1+2×(−4) を計算せよ。", "t": "num", "a": "-9", "ex": "かけ算を先に計算します。2×(−4)=−8。−1+(−8)=−9。"}, {"s": "math", "u": "正負の数・式", "q": "(−6−2)²−6 を計算せよ。", "t": "num", "a": "58", "ex": "かっこの中が先です。−6−2=−8。(−8)²=64。64−6=58。"}, {"s": "math", "u": "正負の数・式", "q": "−8²+(−2)×7 を計算せよ。", "t": "num", "a": "-78", "ex": "−8² は −(8²)=−64 です。(−2)×7=−14。合計は −78。"}, {"s": "math", "u": "正負の数・式", "q": "84÷3−3 を計算せよ。", "t": "num", "a": "25", "ex": "84÷3=28。28−3=25。"}, {"s": "math", "u": "正負の数・式", "q": "(−2)²−3×(2−(−6)) を計算せよ。", "t": "num", "a": "-20", "ex": "(−2)²=4。かっこの中は 2−(−6)=8。4−3×8=−20。"}, {"s": "math", "u": "正負の数・式", "q": "1/2+2/3 を計算し、既約分数で答えよ。", "t": "num", "a": "7/6", "ex": "通分して足します。答えは 7/6。"}, {"s": "math", "u": "正負の数・式", "q": "3/4−5/6 を計算し、既約分数で答えよ。", "t": "num", "a": "-1/12", "ex": "通分して引きます。答えは −1/12。"}, {"s": "math", "u": "正負の数・式", "q": "2/3×3/8 を計算し、既約分数で答えよ。", "t": "num", "a": "1/4", "ex": "分子どうし、分母どうしをかけて約分します。答えは 1/4。"}, {"s": "math", "u": "正負の数・式", "q": "3(2a−b)−2(a+3b) を計算せよ。", "t": "mc", "a": "4a−9b", "ex": "かっこをはずします。6a−3b−(2a+6b)。ひくときは符号が変わるので 4a−9b。", "w": ["8a+3b", "4a+3b", "8a−9b"]}, {"s": "math", "u": "正負の数・式", "q": "2(3a+2b)−4(−a+b) を計算せよ。", "t": "mc", "a": "10a", "ex": "かっこをはずします。6a+4b−(−4a+4b)。ひくときは符号が変わるので 10a。", "w": ["2a+8b", "10a+8b", "2a"]}, {"s": "math", "u": "正負の数・式", "q": "4(a−2b)−3(2a+b) を計算せよ。", "t": "mc", "a": "−2a−11b", "ex": "かっこをはずします。4a−8b−(6a+3b)。ひくときは符号が変わるので −2a−11b。", "w": ["10a−5b", "−2a−5b", "10a−11b"]}, {"s": "math", "u": "展開・因数分解", "q": "(x+3)(x−5) を展開せよ。", "t": "mc", "a": "x²−2x−15", "ex": "x²+(3+(−5))x+3×(−5) となり、x²−2x−15。", "w": ["x²+2x−15", "x²−2x+15", "x²−15x−2"]}, {"s": "math", "u": "展開・因数分解", "q": "(x−2)(x−6) を展開せよ。", "t": "mc", "a": "x²−8x+12", "ex": "x²+(−2+(−6))x+(−2)×(−6) となり、x²−8x+12。", "w": ["x²+8x+12", "x²−8x−12", "x²+12x−8"]}, {"s": "math", "u": "展開・因数分解", "q": "(x+5)² を展開せよ。", "t": "mc", "a": "x²+10x+25", "ex": "(a+b)²=a²+2ab+b² を使います。2×5=10、5²=25。答えは x²+10x+25。", "w": ["x²+25", "x²+5x+25", "x²+10x−25"]}, {"s": "math", "u": "展開・因数分解", "q": "(x−3)² を展開せよ。", "t": "mc", "a": "x²−6x+9", "ex": "(a+b)²=a²+2ab+b² を使います。2×(−3)=−6、(−3)²=9。答えは x²−6x+9。", "w": ["x²+9", "x²−3x+9", "x²−6x−9"]}, {"s": "math", "u": "展開・因数分解", "q": "(x+7)(x−7) を展開せよ。", "t": "mc", "a": "x²−49", "ex": "(a+b)(a−b)=a²−b² の公式を使います。x²−7²=x²−49。", "w": ["x²+49", "x²−14x−49", "x²−14x+49"]}, {"s": "math", "u": "展開・因数分解", "q": "(2x+3)(x−4) を展開せよ。", "t": "mc", "a": "2x²−5x−12", "ex": "2x²−8x+3x−12=2x²−5x−12。", "w": ["2x²+5x−12", "2x²−11x−12", "2x²−5x+12"]}, {"s": "math", "u": "展開・因数分解", "q": "x²+5x+6 を因数分解せよ。", "t": "mc", "a": "(x+2)(x+3)", "ex": "かけて 6、たして 5 になる2数は 2 と 3。答えは (x+2)(x+3)。", "w": ["(x−3)(x−2)", "(x−2)(x+3)", "(x−3)(x+2)"]}, {"s": "math", "u": "展開・因数分解", "q": "x²−3x−4 を因数分解せよ。", "t": "mc", "a": "(x−4)(x+1)", "ex": "かけて −4、たして −3 になる2数は −4 と 1。答えは (x−4)(x+1)。", "w": ["(x−1)(x+4)", "(x+1)(x+4)", "(x−4)(x−1)"]}, {"s": "math", "u": "展開・因数分解", "q": "x²−7x+10 を因数分解せよ。", "t": "mc", "a": "(x−5)(x−2)", "ex": "かけて 10、たして −7 になる2数は −5 と −2。答えは (x−5)(x−2)。", "w": ["(x+2)(x+5)", "(x−2)(x+5)", "(x−5)(x+2)"]}, {"s": "math", "u": "展開・因数分解", "q": "2x²−18 を因数分解せよ。", "t": "mc", "a": "2(x+3)(x−3)", "ex": "まず共通因数2でくくると 2(x²−9)。さらに x²−9=(x+3)(x−3)。", "w": ["2(x−3)²", "2(x+3)²", "(2x+3)(x−3)"]}, {"s": "math", "u": "平方根", "q": "√18 を a√b の形（b はできるだけ小さい自然数）で表せ。", "t": "mc", "a": "3√2", "ex": "18=3²×2 なので √18=3√2。", "w": ["2√3", "9√2", "4√2"]}, {"s": "math", "u": "平方根", "q": "√75 を a√b の形（b はできるだけ小さい自然数）で表せ。", "t": "mc", "a": "5√3", "ex": "75=5²×3 なので √75=5√3。", "w": ["3√5", "25√3", "6√3"]}, {"s": "math", "u": "平方根", "q": "√6×√3 を計算し、できるだけ簡単な形で表せ。", "t": "mc", "a": "3√2", "ex": "√6×√3=√18=3√2。", "w": ["2√3", "18", "4√2"]}, {"s": "math", "u": "平方根", "q": "√2×√14 を計算し、できるだけ簡単な形で表せ。", "t": "mc", "a": "2√7", "ex": "√2×√14=√28=2√7。", "w": ["4√7", "28", "3√7"]}, {"s": "math", "u": "平方根", "q": "6/√3 の分母を有理化せよ。", "t": "mc", "a": "2√3", "ex": "分母と分子に √3 をかけます。6√3/3=2√3。", "w": ["6√3", "3√3", "18√3"]}, {"s": "math", "u": "平方根", "q": "15/√5 の分母を有理化せよ。", "t": "mc", "a": "3√5", "ex": "分母と分子に √5 をかけます。15√5/5=3√5。", "w": ["15√5", "4√5", "75√5"]}, {"s": "math", "u": "平方根", "q": "√18+√8 を計算せよ。", "t": "mc", "a": "5√2", "ex": "√18=3√2、√8=2√2 なので 3√2+2√2=5√2。", "w": ["√26", "6√2", "4√2"]}, {"s": "math", "u": "平方根", "q": "(√7+2)(√7−2) を計算せよ。", "t": "num", "a": "3", "ex": "(a+b)(a−b)=a²−b² を使うと (√7)²−2²=7−4=3。"}, {"s": "math", "u": "平方根", "q": "(√3+1)² を計算せよ。", "t": "mc", "a": "4+2√3", "ex": "(a+b)²=a²+2ab+b²。3+2√3+1=4+2√3。", "w": ["4", "3+2√3", "4+√3"]}, {"s": "math", "u": "平方根", "q": "√40 の整数部分を答えよ。", "t": "num", "a": "6", "ex": "6²=36、7²=49 なので 6<√40<7。整数部分は 6。"}, {"s": "math", "u": "平方根", "q": "√(12n) が自然数になるような、最も小さい自然数 n を求めよ。", "t": "num", "a": "3", "ex": "12=2²×3。n=3 とすると 12n=36=(6)² になります。"}, {"s": "math", "u": "平方根", "q": "√(45n) が自然数になるような、最も小さい自然数 n を求めよ。", "t": "num", "a": "5", "ex": "45=3²×5。n=5 とすると 45n=225=(15)² になります。"}, {"s": "math", "u": "平方根", "q": "3<√n<5 を満たす自然数 n は全部で何個あるか。", "t": "num", "a": "15", "ex": "9<n<25 なので n=10〜24 の15個。"}, {"s": "math", "u": "方程式", "q": "一次方程式 4x−7=−2x−19 を解け。x の値を答えよ。", "t": "num", "a": "-2", "ex": "x の項を左、数を右に移項すると 6x=−12。よって x=−2。"}, {"s": "math", "u": "方程式", "q": "一次方程式 3(x−1)=2x+3 を解け。x の値を答えよ。", "t": "num", "a": "6", "ex": "左辺を展開して 3x−3=2x+3。移項して x=6。"}, {"s": "math", "u": "方程式", "q": "方程式 (x+3)/3=(x+4)/4 を解け。x の値を答えよ。", "t": "num", "a": "0", "ex": "両辺に 3と4の最小公倍数 12 をかけて分母をはらい、整理すると x=0。"}, {"s": "math", "u": "方程式", "q": "連立方程式 2x+3y=5、x−2y=−1 を解いたとき、x の値を答えよ。", "t": "num", "a": "1", "ex": "加減法か代入法で解くと x=1、y=1。x=1。"}, {"s": "math", "u": "方程式", "q": "連立方程式 x−y=−10、x+y=2 を解いたとき、y の値を答えよ。", "t": "num", "a": "6", "ex": "加減法か代入法で解くと x=−4、y=6。y=6。"}, {"s": "math", "u": "方程式", "q": "連立方程式 x+2y=10、−2x−y=−14 を解いたとき、x の値を答えよ。", "t": "num", "a": "6", "ex": "加減法か代入法で解くと x=6、y=2。x=6。"}, {"s": "math", "u": "方程式", "q": "二次方程式 x²−2x−15=0 を解け。", "t": "mc", "a": "x=−3, 5", "ex": "左辺を因数分解すると (x−5)(x+3)。よって x=−3, 5。", "w": ["x=−5, 3", "x=−5, −3", "x=3, 5"]}, {"s": "math", "u": "方程式", "q": "二次方程式 x²−8x+12=0 を解け。", "t": "mc", "a": "x=2, 6", "ex": "左辺を因数分解すると (x−6)(x−2)。よって x=2, 6。", "w": ["x=−6, −2", "x=−6, 2", "x=−2, 6"]}, {"s": "math", "u": "方程式", "q": "二次方程式 x²=7 を解け。", "t": "mc", "a": "x=±√7", "ex": "平方根を考えると x=√7 と x=−√7。両方答えます。", "w": ["x=√7", "x=±7", "x=±7/2"]}, {"s": "math", "u": "方程式", "q": "二次方程式 (x−3)²=25 を解け。", "t": "mc", "a": "x=8, −2", "ex": "x−3=±5。x=3+5=8、x=3−5=−2。", "w": ["x=8", "x=28, −22", "x=−8, 2"]}, {"s": "math", "u": "方程式", "q": "二次方程式 x²+3x−1=0 を解の公式で解け。", "t": "mc", "a": "x=(−3±√13)/2", "ex": "解の公式 x=(−b±√(b²−4ac))/2a に a=1, b=3, c=−1 を代入。b²−4ac=9+4=13。", "w": ["x=(3±√13)/2", "x=(−3±√5)/2", "x=(−3±√13)/4"]}, {"s": "math", "u": "方程式", "q": "二次方程式 x²−5x=0 を解け。", "t": "mc", "a": "x=0, 5", "ex": "x(x−5)=0 と因数分解できるので x=0 または x=5。x=0 を忘れずに。", "w": ["x=5", "x=0, −5", "x=±5"]}, {"s": "math", "u": "方程式", "q": "二次方程式 x²+ax−12=0 の解の1つが 2 であるとき、a の値を答えよ。", "t": "num", "a": "4", "ex": "x=2 を代入すると 4+2a−12=0。2a=8 より a=4。"}, {"s": "math", "u": "方程式", "q": "ノート3冊とペン2本で 660 円、ノート2冊とペン4本で 840 円である。ノート1冊の値段は何円か。", "t": "num", "a": "120", "ex": "ノート1冊を x 円、ペン1本を y 円とすると 3x+2y=660、2x+4y=840。解くと x=120、y=150。", "wp": true}, {"s": "math", "u": "方程式", "q": "A地点からB地点まで往復した。行きは分速60m、帰りは分速80mで歩き、往復で合計 14 分かかった。AB間の道のりは何mか。", "t": "num", "a": "480", "ex": "道のりを x m とすると x/60+x/80=14。両辺を240倍して 4x+3x=3360、x=480。", "wp": true}, {"s": "math", "u": "方程式", "q": "連続する3つの整数の和が 69 である。この3つの整数のうち最も小さい数を答えよ。", "t": "num", "a": "22", "ex": "真ん中の数は 69÷3=23。よって 22, 23, 24。最も小さい数は 22。", "wp": true}, {"s": "math", "u": "方程式", "q": "ある商品を定価の2割引で買ったところ、代金は 1440 円だった。定価は何円か。", "t": "num", "a": "1800", "ex": "定価を x 円とすると 0.8x=1440。x=1800。", "wp": true}, {"s": "math", "u": "方程式", "q": "連続する2つの正の整数の積が 156 である。大きい方の整数を答えよ。", "t": "num", "a": "13", "ex": "小さい方を x とすると x(x+1)=156。x²+x−156=0、(x+13)(x−12)=0。x は正なので x=12。大きい方は 13。", "wp": true}, {"s": "math", "u": "確率・データ", "q": "大小2つのさいころを同時に投げるとき、出る目の和が 5 になる確率を求めよ。（既約分数で答える）", "t": "num", "a": "1/9", "ex": "目の出方は全部で36通り。和が 5 になるのは 4 通り。確率は 1/9。"}, {"s": "math", "u": "確率・データ", "q": "大小2つのさいころを同時に投げるとき、出る目の和が 8 になる確率を求めよ。（既約分数で答える）", "t": "num", "a": "5/36", "ex": "目の出方は全部で36通り。和が 8 になるのは 5 通り。確率は 5/36。"}, {"s": "math", "u": "確率・データ", "q": "大小2つのさいころを同時に投げるとき、出る目の積が偶数になる確率を求めよ。（既約分数で答える）", "t": "num", "a": "3/4", "ex": "積が奇数になるのは2つとも奇数のとき 3×3=9 通り。偶数は 36−9=27 通り。確率は 3/4。"}, {"s": "math", "u": "確率・データ", "q": "赤玉3個、白玉2個が入った袋から、同時に2個の玉を取り出すとき、2個とも赤玉である確率を求めよ。（既約分数で答える）", "t": "num", "a": "3/10", "ex": "取り出し方は全部で 10 通り。2個とも赤玉は 3 通り。確率は 3/10。"}, {"s": "math", "u": "確率・データ", "q": "赤玉4個、白玉3個が入った袋から、同時に2個の玉を取り出すとき、2個とも赤玉である確率を求めよ。（既約分数で答える）", "t": "num", "a": "2/7", "ex": "取り出し方は全部で 21 通り。2個とも赤玉は 6 通り。確率は 2/7。"}, {"s": "math", "u": "確率・データ", "q": "1から5までの数字が1つずつ書かれた5枚のカードから、同時に2枚を引くとき、2枚の数の和が偶数になる確率を求めよ。（既約分数で答える）", "t": "num", "a": "2/5", "ex": "引き方は全部で 10 通り。和が偶数になるのは (1,3)(1,5)(3,5)(2,4) の 4 通り。確率は 2/5。"}, {"s": "math", "u": "確率・データ", "q": "1枚のコインを3回投げるとき、表がちょうど2回出る確率を求めよ。（既約分数で答える）", "t": "num", "a": "3/8", "ex": "全部で 2×2×2=8 通り。表がちょうど2回は (表表裏)(表裏表)(裏表表) の3通り。確率は 3/8。"}, {"s": "math", "u": "確率・データ", "q": "6個のデータ 4, 7, 9, 5, 8, 9 の平均値を答えよ。", "t": "num", "a": "7", "ex": "合計は 42。42÷6=7。"}, {"s": "math", "u": "確率・データ", "q": "データ 12, 5, 9, 15, 7, 11 の中央値を答えよ。", "t": "num", "a": "10", "ex": "小さい順に 5,7,9,11,12,15。真ん中の2つ 9 と 11 の平均が中央値で 10。"}, {"s": "math", "u": "確率・データ", "q": "データ 3, 5, 5, 6, 8, 5, 9 の最頻値（モード）を答えよ。", "t": "num", "a": "5", "ex": "5が3回出てくるので最頻値は 5。"}, {"s": "math", "u": "確率・データ", "q": "データ 2, 4, 5, 7, 8, 10, 12, 13 の四分位範囲を答えよ。", "t": "num", "a": "6.5", "ex": "下位4個の中央値（第1四分位数）は (4+5)/2=4.5、上位4個の中央値（第3四分位数）は (10+12)/2=11。四分位範囲は 11−4.5=6.5。"}, {"s": "math", "u": "確率・データ", "q": "5人の数学の平均点は 60 点だった。ここにもう1人 72 点の生徒を加えると、6人の平均点は何点になるか。", "t": "num", "a": "62", "ex": "5人の合計は 60×5=300。72点を加えて 372。372÷6=62。"}, {"s": "math", "u": "確率・データ", "q": "ある階級の度数が 12 で、度数の合計が 40 である。この階級の相対度数を答えよ。", "t": "num", "a": "0.3", "ex": "相対度数=その階級の度数÷度数の合計=12÷40=0.3。"}, {"s": "math", "u": "関数", "q": "2点 (1, −1), (4, 5) を通る直線の式を求めよ。", "t": "mc", "a": "y=2x−3", "ex": "傾きは (5−(−1))÷(4−1)=2。点 (1, −1) を通るので切片は −3。答えは y=2x−3。", "w": ["y=−2x−3", "y=2x+3", "y=2x−2"]}, {"s": "math", "u": "関数", "q": "2点 (−2, 7), (3, 2) を通る直線の式を求めよ。", "t": "mc", "a": "y=−x+5", "ex": "傾きは (2−7)÷(3−(−2))=−1。点 (−2, 7) を通るので切片は 5。答えは y=−x+5。", "w": ["y=x+5", "y=−x−5", "y=−x+6"]}, {"s": "math", "u": "関数", "q": "一次関数 y=−3x+2 で、x の値が 1 から 5 まで増加するとき、y の増加量を答えよ。", "t": "num", "a": "-12", "ex": "増加量=変化の割合×x の増加量=(−3)×4=−12。"}, {"s": "math", "u": "関数", "q": "一次関数 y=−2x+1 で、x の変域が −1≦x≦3 のとき、y の変域は？", "t": "mc", "a": "−5≦y≦3", "ex": "x=−1 のとき y=3、x=3 のとき y=−5。傾きが負なので小さい方から書いて −5≦y≦3。", "w": ["3≦y≦−5", "−1≦y≦7", "−5≦y≦7"]}, {"s": "math", "u": "関数", "q": "y は x に反比例し、x=3 のとき y=8 である。x=6 のとき y の値を答えよ。", "t": "num", "a": "4", "ex": "xy=3×8=24 で一定。x=6 なら y=24÷6=4。"}, {"s": "math", "u": "関数", "q": "2直線 y=x+1 と y=−2x+7 の交点の座標を求めよ。", "t": "mc", "a": "(2, 3)", "ex": "x+1=−2x+7 を解くと x=2。y=3。", "w": ["(3, 2)", "(−2, 3)", "(2, −3)"]}, {"s": "math", "u": "関数", "q": "関数 y=(1/2)x² のグラフ上に点Aがあり、Aのx座標は −4 である。Aのy座標を求めよ。", "t": "num", "a": "8", "ex": "x=−4 を代入。y=(1/2)×(−4)²=8。"}, {"s": "math", "u": "関数", "q": "関数 y=(1/3)x² のグラフ上に点Aがあり、Aのx座標は −3 である。Aのy座標を求めよ。", "t": "num", "a": "3", "ex": "x=−3 を代入。y=(1/3)×(−3)²=3。"}, {"s": "math", "u": "関数", "q": "関数 y=ax² のグラフが点 (8, 16) を通るとき、a の値を答えよ。", "t": "num", "a": "1/4", "ex": "x=8, y=16 を代入すると 16=a×64。a=1/4。"}, {"s": "math", "u": "関数", "q": "関数 y=ax² のグラフが点 (3, 18) を通るとき、a の値を答えよ。", "t": "num", "a": "2", "ex": "x=3, y=18 を代入すると 18=a×9。a=2。"}, {"s": "math", "u": "関数", "q": "関数 y=(1/2)x² で、x の値が 2 から 6 まで増加するときの変化の割合を求めよ。", "t": "num", "a": "4", "ex": "y=ax² で x が p から q まで変化するときの変化の割合は a(p+q)。1/2×(2+6)=4。"}, {"s": "math", "u": "関数", "q": "関数 y=3x² で、x の値が −2 から 1 まで増加するときの変化の割合を求めよ。", "t": "num", "a": "-3", "ex": "y=ax² で x が p から q まで変化するときの変化の割合は a(p+q)。3×(−2+1)=−3。"}, {"s": "math", "u": "関数", "q": "関数 y=(1/2)x² で、x の変域が −2≦x≦4 のとき、y の変域は？", "t": "mc", "a": "0≦y≦8", "ex": "x=0 を含むので最小値は 0。最大値は x=4 のとき 8。よって 0≦y≦8。", "w": ["2≦y≦8", "0≦y≦2", "8≦y≦2"]}, {"s": "math", "u": "関数", "q": "関数 y=x² で、x の変域が 1≦x≦3 のとき、y の変域は？", "t": "mc", "a": "1≦y≦9", "ex": "x≧0 の範囲では x が増えると y も増えます。x=1 で y=1、x=3 で y=9。", "w": ["0≦y≦9", "9≦y≦1", "1≦y≦3"]}, {"s": "math", "u": "関数", "q": "放物線 y=(1/2)x² 上に2点A, Bがあり、x座標はそれぞれ −2, 4 である。直線ABの式を求めよ。", "t": "mc", "a": "y=x+4", "ex": "A(−2, 2), B(4, 8)。傾きは (8−2)÷(4−(−2))=1。切片は 4。答えは y=x+4。", "w": ["y=−x+4", "y=x−4", "y=2x+4"]}, {"s": "math", "u": "関数", "q": "放物線 y=x² 上に2点A, Bがあり、x座標はそれぞれ −3, 2 である。直線ABの式を求めよ。", "t": "mc", "a": "y=−x+6", "ex": "A(−3, 9), B(2, 4)。傾きは (4−9)÷(2−(−3))=−1。切片は 6。答えは y=−x+6。", "w": ["y=x+6", "y=−x−6", "y=6"]}, {"s": "math", "u": "関数", "q": "放物線 y=(1/2)x² 上に2点A, Bがあり、x座標はそれぞれ −2, 4 である。原点をOとするとき、△OAB の面積を求めよ。", "t": "num", "a": "12", "ex": "直線ABとy軸の交点をCとすると C(0, 4)。△OAB=△OAC+△OBC=(1/2)×4×(2+4)=12。"}, {"s": "math", "u": "関数", "q": "放物線 y=x² 上に2点A, Bがあり、x座標はそれぞれ −2, 3 である。原点をOとするとき、△OAB の面積を求めよ。", "t": "num", "a": "15", "ex": "直線ABとy軸の交点をCとすると C(0, 6)。△OAB=△OAC+△OBC=(1/2)×6×(2+3)=15。"}, {"s": "math", "u": "関数", "q": "関数 y=ax² で、x=4 のとき y=4 である。x=6 のとき y の値を求めよ。", "t": "num", "a": "9", "ex": "x=4, y=4 を代入すると a=1/4。x=6 のとき y=(1/4)×36=9。"}, {"s": "math", "u": "関数", "q": "関数 y=ax² で、x=−3 のとき y=6 である。x=6 のとき y の値を求めよ。", "t": "num", "a": "24", "ex": "x=−3, y=6 を代入すると 6=9a、a=2/3。x=6 のとき y=(2/3)×36=24。"}, {"s": "math", "u": "図形", "q": "直角をはさむ2辺の長さが 6cm と 8cm の直角三角形がある。斜辺の長さを求めよ。（単位 cm）", "t": "num", "a": "10", "ex": "三平方の定理より 6²+8²=100。斜辺は √100=10。"}, {"s": "math", "u": "図形", "q": "斜辺が 17cm、他の1辺が 8cm の直角三角形がある。残りの辺の長さを求めよ。（単位 cm）", "t": "num", "a": "15", "ex": "17²−8²=289−64=225。√225=15。"}, {"s": "math", "u": "図形", "q": "縦 5cm、横 12cm の長方形の対角線の長さを求めよ。（単位 cm）", "t": "num", "a": "13", "ex": "対角線は直角三角形の斜辺。5²+12²=169、√169=13。"}, {"s": "math", "u": "図形", "q": "半径 5cm の円で、中心Oからの距離が 3cm である弦ABの長さを求めよ。（単位 cm）", "t": "num", "a": "8", "ex": "中心から弦に垂線を引くと弦の中点を通る。半弦=√(5²−3²)=4。弦ABは 4×2=8。"}, {"s": "math", "u": "図形", "q": "座標平面上の2点 A(1, 2), B(7, 10) の間の距離を求めよ。", "t": "num", "a": "10", "ex": "横に 6、縦に 8 離れている。三平方の定理で √(36+64)=10。"}, {"s": "math", "u": "図形", "q": "正八角形の1つの内角の大きさは何度か。", "t": "num", "a": "135", "ex": "八角形の内角の和は 180×(8−2)=1080°。÷8=135°。"}, {"s": "math", "u": "図形", "q": "十角形の内角の和は何度か。", "t": "num", "a": "1440", "ex": "内角の和は 180×(n−2)。180×8=1440°。"}, {"s": "math", "u": "図形", "q": "1つの外角が 36° である正多角形は正何角形か。", "t": "num", "a": "10", "ex": "外角の和は 360°。360÷36=10。正十角形。"}, {"s": "math", "u": "図形", "q": "円Oの円周上に3点A, B, Cがある。弧ABに対する中心角∠AOBが 130° のとき、円周角∠ACBは何度か。（Cは弧ABを含まない側の円周上の点）", "t": "num", "a": "65", "ex": "円周角は中心角の半分。130÷2=65°。"}, {"s": "math", "u": "図形", "q": "円の弧ABに対する円周角が 38° のとき、中心角∠AOBは何度か。", "t": "num", "a": "76", "ex": "中心角は円周角の2倍。38×2=76°。"}, {"s": "math", "u": "図形", "q": "円に内接する四角形ABCDで、∠A=105° のとき ∠C は何度か。", "t": "num", "a": "75", "ex": "円に内接する四角形の対角の和は 180°。180−105=75°。"}, {"s": "math", "u": "図形", "q": "半径 6cm、中心角 60° のおうぎ形の弧の長さは □π cm である。□にあてはまる数を求めよ。", "t": "num", "a": "2", "ex": "弧の長さ=2π×6×(60/360)=2π。"}, {"s": "math", "u": "図形", "q": "半径 6cm、中心角 150° のおうぎ形の面積は □π cm² である。□にあてはまる数を求めよ。", "t": "num", "a": "15", "ex": "面積=π×6²×(150/360)=36×(5/12)π=15π。"}, {"s": "math", "u": "図形", "q": "底面の半径が 3cm、高さが 5cm の円柱の体積は □π cm³ である。□にあてはまる数を求めよ。", "t": "num", "a": "45", "ex": "体積=底面積×高さ=π×3²×5=45π。"}, {"s": "math", "u": "図形", "q": "底面の半径が 3cm、高さが 4cm の円錐の体積は □π cm³ である。□にあてはまる数を求めよ。", "t": "num", "a": "12", "ex": "体積=(1/3)×底面積×高さ=(1/3)×9π×4=12π。"}, {"s": "math", "u": "図形", "q": "半径 3cm の球の体積は □π cm³ である。□にあてはまる数を求めよ。", "t": "num", "a": "36", "ex": "球の体積=(4/3)πr³=(4/3)π×27=36π。"}, {"s": "math", "u": "図形", "q": "半径 5cm の球の表面積は □π cm² である。□にあてはまる数を求めよ。", "t": "num", "a": "100", "ex": "球の表面積=4πr²=4π×25=100π。"}, {"s": "math", "u": "図形", "q": "底面が1辺6cmの正方形で、高さが 5cm の正四角錐の体積は何 cm³ か。", "t": "num", "a": "60", "ex": "体積=(1/3)×底面積×高さ=(1/3)×36×5=60。"}, {"s": "math", "u": "図形", "q": "相似比が 2:3 である2つの三角形がある。小さい方の面積が 12cm² のとき、大きい方の面積は何 cm² か。", "t": "num", "a": "27", "ex": "面積比は相似比の2乗で 4:9。12×(9/4)=27。"}, {"s": "math", "u": "図形", "q": "相似比が 1:2 である2つの立体がある。小さい方の体積が 15cm³ のとき、大きい方の体積は何 cm³ か。", "t": "num", "a": "120", "ex": "体積比は相似比の3乗で 1:8。15×8=120。"}, {"s": "math", "u": "図形", "q": "△ABC の辺 AB, AC の中点をそれぞれ M, N とする。BC=14cm のとき、MN の長さは何 cm か。", "t": "num", "a": "7", "ex": "中点連結定理より MN=BC÷2=7。"}, {"s": "math", "u": "図形", "q": "AB=AC の二等辺三角形ABCで、頂角∠A=48° のとき、底角∠B は何度か。", "t": "num", "a": "66", "ex": "底角は等しいので (180−48)÷2=66°。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "attend の意味はどれ？", "a": "出席する", "w": ["手伝う", "比べる", "祝う"], "ex": "attend は「出席する」。attend a meeting（会議に出る）。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "tradition の意味はどれ？", "a": "伝統", "w": ["革命", "経験", "競争"], "ex": "tradition は「伝統」。形容詞は traditional（伝統的な）。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "especially の意味はどれ？", "a": "特に", "w": ["ほとんど", "まだ", "たぶん"], "ex": "especially は「特に」。I like fruit, especially apples."}, {"s": "eng", "u": "単語", "t": "mc", "q": "century の意味はどれ？", "a": "世紀", "w": ["世代", "季節", "地域"], "ex": "century は「100年、世紀」。the 21st century（21世紀）。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "customer の意味はどれ？", "a": "客", "w": ["従業員", "隣人", "医者"], "ex": "customer は店などの「客」。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "popular の意味はどれ？", "a": "人気のある", "w": ["静かな", "昔の", "不思議な"], "ex": "popular は「人気のある」。popular among young people（若者に人気）。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "pleased の意味はどれ？", "a": "うれしい", "w": ["疲れた", "怒った", "心配な"], "ex": "pleased は「うれしい、喜んで」。I'm pleased to meet you."}, {"s": "eng", "u": "単語", "t": "mc", "q": "suddenly の意味はどれ？", "a": "突然", "w": ["次第に", "最近", "いつも"], "ex": "suddenly は「突然」。形容詞は sudden。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "invite の意味はどれ？", "a": "招待する", "w": ["禁止する", "断る", "手配する"], "ex": "invite は「招待する」。invite her to the party。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "wonderful の意味はどれ？", "a": "すばらしい", "w": ["恐ろしい", "退屈な", "普通の"], "ex": "wonderful は「すばらしい」。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "shy の意味はどれ？", "a": "恥ずかしがりの", "w": ["勇敢な", "忙しい", "賢い"], "ex": "shy は「内気な、恥ずかしがりの」。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "culture の意味はどれ？", "a": "文化", "w": ["自然", "産業", "歴史"], "ex": "culture は「文化」。different cultures（さまざまな文化）。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "次の説明にあてはまる語はどれ？　\"a place where you can borrow books\"", "a": "library", "w": ["hospital", "museum", "station"], "ex": "borrow books（本を借りる）場所なので library（図書館）。"}, {"s": "eng", "u": "単語", "t": "mc", "q": "次の説明にあてはまる語はどれ？　\"the season after summer\"", "a": "autumn", "w": ["spring", "winter", "rainy"], "ex": "夏の次の季節は autumn（fall）。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "I was（　）the news when the phone rang.", "a": "watching", "w": ["watch", "watched", "to watch"], "ex": "「電話が鳴ったとき〜を見ていた」は過去進行形 was＋ing。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "My brother is（　）than me.", "a": "taller", "w": ["tall", "tallest", "more tall"], "ex": "than があるので比較級。tall の比較級は taller。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "How many books（　）you read last month?", "a": "did", "w": ["do", "were", "have"], "ex": "last month（先月）は過去を表すので疑問文は did を使います。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "She asked me（　）the station was.", "a": "where", "w": ["what", "who", "which"], "ex": "間接疑問文。「駅がどこにあるか」なので where。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "The window（　）by Tom yesterday.", "a": "was broken", "w": ["broke", "broken", "is breaking"], "ex": "「割られた」は受け身。yesterday なので was＋過去分詞。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "I have（　）finished my homework.", "a": "already", "w": ["yet", "ago", "ever"], "ex": "現在完了の肯定文で「もう〜した」は already。yet は否定文・疑問文で使います。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "This is the picture（　）I took in Kyoto.", "a": "that", "w": ["who", "what", "whose"], "ex": "先行詞が the picture（物）なので that（または which）。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "He was too tired（　）walk.", "a": "to", "w": ["for", "of", "with"], "ex": "too ～ to ... で「～すぎて…できない」。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "Please tell me how（　）get to the museum.", "a": "to", "w": ["will", "going", "for"], "ex": "how to ～ で「～のしかた」。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "If I（　）a bird, I could fly to you.", "a": "were", "w": ["am", "be", "will be"], "ex": "事実と異なる仮定（仮定法）では If I were ～ を使います。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "The girl（　）with Ken is my sister.", "a": "talking", "w": ["talk", "talked", "talks"], "ex": "「ケンと話している女の子」は現在分詞の後置修飾。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "Math is（　）difficult subject for me.", "a": "the most", "w": ["more", "most", "the more"], "ex": "「最も難しい教科」は最上級。difficult は the most difficult。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "I enjoyed（　）soccer with my friends.", "a": "playing", "w": ["to play", "play", "played"], "ex": "enjoy のあとは動名詞（～ing）。to ～ は使えません。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "It is important（　）us to help each other.", "a": "for", "w": ["of", "to", "with"], "ex": "It is ～ for 人 to ... で「人が…することは～だ」。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "（　）you open the window, please?", "a": "Could", "w": ["Do", "Are", "Is"], "ex": "Could you ～, please? は「～していただけますか」とていねいに頼む表現。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "Ken has lived in Tokyo（　）he was born.", "a": "since", "w": ["for", "during", "while"], "ex": "「生まれてからずっと」は起点を表す since。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "I wish I（　）more time.", "a": "had", "w": ["have", "has", "having"], "ex": "I wish のあとは仮定法過去。「もっと時間があればなあ」は had。"}, {"s": "eng", "u": "文法", "t": "mc", "q": "I was（　）in the story.", "a": "interested", "w": ["interesting", "interest", "interests"], "ex": "「（人が）興味を持った」は interested。interesting は「（物が）おもしろい」。"}, {"s": "eng", "u": "熟語", "t": "mc", "q": "be interested in ～ の意味はどれ？", "a": "～に興味がある", "w": ["～に参加する", "～に驚く", "～が得意だ"], "ex": "I'm interested in science.（私は科学に興味があります）"}, {"s": "eng", "u": "熟語", "t": "mc", "q": "as soon as ～ の意味はどれ？", "a": "～するとすぐに", "w": ["～するかぎり", "～する前に", "～のあいだに"], "ex": "as soon as I got home（家に着くとすぐに）"}, {"s": "eng", "u": "熟語", "t": "mc", "q": "at least の意味はどれ？", "a": "少なくとも", "w": ["せいぜい", "とくに", "最後に"], "ex": "at least ten minutes（少なくとも10分）。反対は at most（多くても）。"}, {"s": "eng", "u": "熟語", "t": "mc", "q": "run out of ～ の意味はどれ？", "a": "～を使い果たす", "w": ["～から逃げる", "～を運転する", "～を追いかける"], "ex": "We ran out of water.（水がなくなった）"}, {"s": "eng", "u": "熟語", "t": "mc", "q": "wait for ～ の意味はどれ？", "a": "～を待つ", "w": ["～を見送る", "～を探す", "～を呼ぶ"], "ex": "wait for the bus（バスを待つ）。"}, {"s": "eng", "u": "熟語", "t": "mc", "q": "pick up ～ の意味はどれ？", "a": "～を拾う・迎えに行く", "w": ["～を捨てる", "～を飾る", "～を売る"], "ex": "I'll pick you up at the station.（駅まで迎えに行くよ）"}, {"s": "eng", "u": "並べ替え", "t": "mc", "q": "次の語（句）を並べかえて、「私は京都を訪れたい。」という意味の正しい英文にするとき、正しいものはどれ？\n（I / want / to / Kyoto / visit）", "a": "I want to visit Kyoto.", "w": ["I visit want to Kyoto.", "To I want visit Kyoto.", "I want visit to Kyoto."], "ex": "want to ～（～したい）のあとに動詞 visit と目的語 Kyoto を置きます。"}, {"s": "eng", "u": "並べ替え", "t": "mc", "q": "次の語（句）を並べかえて、「彼女は何を探していますか。」という意味の正しい英文にするとき、正しいものはどれ？\n（is / looking / what / for / she）", "a": "What is she looking for?", "w": ["What she is looking for?", "Is what she looking for?", "What is looking she for?"], "ex": "疑問詞 What＋is she looking for（進行形の疑問文の語順）。"}, {"s": "eng", "u": "並べ替え", "t": "mc", "q": "次の語（句）を並べかえて、「これは私が昨日買った本です。」という意味の正しい英文にするとき、正しいものはどれ？\n（is / the book / this / bought / I / yesterday）", "a": "This is the book I bought yesterday.", "w": ["This the book is I bought yesterday.", "This is I bought the book yesterday.", "Yesterday this is bought the book I."], "ex": "the book のあとに I bought yesterday（関係代名詞の省略）が続きます。"}, {"s": "eng", "u": "並べ替え", "t": "mc", "q": "次の語（句）を並べかえて、「駅への行き方を教えてください。」という意味の正しい英文にするとき、正しいものはどれ？\n（me / to / how / the station / tell / get / please）", "a": "Please tell me how to get to the station.", "w": ["Please tell me to how get to the station.", "Please how tell me to get to the station.", "Tell please me how to get the station to."], "ex": "tell 人 how to ～（～のしかたを教える）の形。"}, {"s": "eng", "u": "並べ替え", "t": "mc", "q": "次の語（句）を並べかえて、「彼が来るかどうか私は知りません。」という意味の正しい英文にするとき、正しいものはどれ？\n（know / if / I / he / don't / will come）", "a": "I don't know if he will come.", "w": ["I know don't if he will come.", "I don't if know he will come.", "If he will come I know don't."], "ex": "「～かどうか」は if。I don't know のあとに if he will come を続けます。"}, {"s": "eng", "u": "並べ替え", "t": "mc", "q": "次の語（句）を並べかえて、「英語は世界中で話されています。」という意味の正しい英文にするとき、正しいものはどれ？\n（spoken / is / English / all over the world）", "a": "English is spoken all over the world.", "w": ["English spoken is all over the world.", "Is English spoken all over the world.", "English is all over spoken the world."], "ex": "受け身 is＋過去分詞（spoken）。場所を表す all over the world は最後。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Hi, Nick. You look tired.\nB: Yes. I stayed up late last night to finish my homework.\nA: （　） You should go to bed early today.", "a": "That's too bad.", "w": ["Congratulations!", "Here you are.", "I'm glad to hear that."], "ex": "宿題で夜更かしして疲れている相手への返事なので「それは大変だったね」That's too bad."}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Excuse me. How can I get to the city library?\nB: Go straight and turn left at the second corner. You'll see it on your right.\nA: （　）", "a": "Thank you very much. That's very helpful.", "w": ["No, I don't think so.", "It's mine.", "I'm sorry, I can't."], "ex": "道を教えてもらったお礼を言う場面です。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Would you like to go shopping with me tomorrow?\nB: （　） I have to take care of my little brother.", "a": "I'd love to, but I can't.", "w": ["Yes, let's go.", "Sure, here you are.", "No, I don't like him."], "ex": "後ろで「弟の世話をしなければならない」と断る理由を言っているので I'd love to, but I can't.（行きたいけれどだめなんだ）。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: How long have you lived in this town?\nB: （　）", "a": "For about ten years.", "w": ["Every year.", "About ten dollars.", "By train."], "ex": "How long ～? は期間をたずねる文。for ～ years と答えます。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Hello. This is Yuki. May I speak to Ms. Green?\nB: I'm sorry, she is out now. （　）", "a": "Would you like to leave a message?", "w": ["Can I take your order?", "Shall I speak to you?", "Where are you from?"], "ex": "電話で相手が不在のときの定番表現。伝言をうかがう Would you like to leave a message?"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: May I help you?\nB: I'm looking for a T-shirt.\nA: How about this blue one?\nB: （　） Do you have a bigger one?", "a": "It looks nice, but it's a little small.", "w": ["It's too big for me.", "I bought it yesterday.", "That's all, thank you."], "ex": "「もっと大きいものはありますか」とたずねているので、今見せられたものは小さいと言っているはず。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: What do you want to be in the future?\nB: I want to be a teacher.\nA: （　）", "a": "Why do you want to be one?", "w": ["How much is it?", "Where did you buy it?", "What time is it?"], "ex": "将来の夢を聞いたあとに、理由をたずねる自然な流れです。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: I'm going to watch the baseball game this weekend. Do you want to come?\nB: （　） What time does it start?", "a": "Sounds good.", "w": ["I'm afraid not.", "You're welcome.", "Never mind."], "ex": "そのあとに開始時間をたずねているので、前向きな返事 Sounds good.（いいね）。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Can you help me carry these books?\nB: （　）", "a": "Sure. Where should I put them?", "w": ["I'm sorry, I'm fine.", "No, thank you. I'm full.", "Yes, you can use it."], "ex": "手伝いを頼まれたときの返事です。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: I'm sorry I forgot your book.\nB: （　） You can bring it tomorrow.", "a": "Don't worry.", "w": ["You're welcome.", "Good luck.", "See you soon."], "ex": "あやまられたときは Don't worry.（気にしないで）。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Is this your first time in Japan?\nB: No, （　） I came here three years ago.", "a": "it's my second time.", "w": ["it's my first time.", "I don't like Japan.", "I'll come back soon."], "ex": "3年前にも来たので first time ではありません。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Are you ready to order?\nB: Yes. I'll have the pasta.\nA: Anything to drink?\nB: （　）", "a": "Orange juice, please.", "w": ["Yes, I did.", "It's delicious.", "I'm ready."], "ex": "飲み物をたずねられているので、飲み物を答えます。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Which do you like better, summer or winter?\nB: （　） I like swimming in the sea.", "a": "I like summer better.", "w": ["I like winter better.", "I don't swim.", "I like it a lot, too."], "ex": "海で泳ぐのが好きなので夏のほうが好きだとわかります。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: What's the matter?\nB: I have a headache.\nA: （　）", "a": "You should see a doctor.", "w": ["You're welcome.", "That sounds fun.", "Let's play soccer."], "ex": "頭が痛いと言う相手へのアドバイスです。"}, {"s": "eng", "u": "会話", "t": "mc", "q": "A: Could you tell me how to use this machine?\nB: （　） First, put your card in here.", "a": "Of course.", "w": ["I'm sorry I'm late.", "It's a long way.", "No, I haven't."], "ex": "使い方を聞かれて、そのあと説明を始めているので承諾の返事 Of course."}, {"s": "eng", "u": "長文", "t": "mc", "q": "Why did the writer not want to join the cleaning at first?", "a": "Because the writer was tired from basketball practice.", "w": ["Because the writer was sick.", "Because the writer had to study.", "Because the writer did not like the park."], "ex": "2文目に I did not want to join because I was tired from basketball practice. とあります。", "pid": "p1"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What made the writer happy?", "a": "The old man's words.", "w": ["A present from the teacher.", "The basketball game.", "The new school building."], "ex": "「その言葉が私をうれしくさせた」His words made me happy. の His words は老人の言葉。", "pid": "p1"}, {"s": "eng", "u": "長文", "t": "mc", "q": "Which is true about the writer?", "a": "The writer will join the cleaning again next month.", "w": ["The writer cleaned the park alone.", "The writer learned that basketball is important.", "The old man joined the cleaning with the writer."], "ex": "最後の文に Next month, I will join the cleaning again とあります。", "pid": "p1"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What is Emily planning for August 10?", "a": "A barbecue party.", "w": ["A trip to the beach.", "A birthday party.", "A dog show."], "ex": "I'm also planning a barbecue party on August 10. とあります。", "pid": "p2"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What does Emily ask Kenta to tell her?", "a": "What food he can't eat.", "w": ["What dogs he likes.", "When he will come to Canada.", "Where he wants to go."], "ex": "最後に Please tell me what food you can't eat. とあります。", "pid": "p2"}, {"s": "eng", "u": "長文", "t": "mc", "q": "Which is true about Max?", "a": "Max likes running on the beach every morning.", "w": ["Max is Emily's little sister.", "Max lives in Japan.", "Max is afraid of Kenta."], "ex": "Max は犬。He likes to run on the beach every morning.", "pid": "p2"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What did many shops in the town do two years ago?", "a": "They stopped giving free plastic bags.", "w": ["They closed on Sundays.", "They started selling cloth bags only.", "They began to give bags to everyone."], "ex": "1文目に many shops stopped giving free plastic bags two years ago とあります。", "pid": "p3"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What does \"it\" mean in \"they got used to it soon\"?", "a": "Bringing their own bags.", "w": ["Going to the river.", "Making a cloth bag.", "Cleaning the streets."], "ex": "直前の「自分のバッグを持ってくることをめんどうに感じた」人たちが、それに慣れたということ。", "pid": "p3"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What does the writer think?", "a": "We can protect the environment by changing daily habits a little.", "w": ["Plastic bags are always bad.", "Shops should close early.", "Rivers are cleaner than streets."], "ex": "最後の文 I think we can protect the environment if we change our daily habits a little.", "pid": "p3"}, {"s": "eng", "u": "長文", "t": "mc", "q": "Why did the writer stop playing the piano?", "a": "Because the writer was busy with the tennis club.", "w": ["Because the piano was broken.", "Because the writer got sick.", "Because the teacher moved away."], "ex": "2文目 I stopped ... because I was busy with the tennis club.", "pid": "p4"}, {"s": "eng", "u": "長文", "t": "mc", "q": "Where did the writer play the piano for the grandfather last winter?", "a": "In the lobby of the hospital.", "w": ["At the grandfather's house.", "At school.", "In the park."], "ex": "Last winter ... I played the piano for him in the lobby of the hospital.", "pid": "p4"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What does the writer do every weekend now?", "a": "The writer plays the piano for the grandfather at his home.", "w": ["The writer practices tennis.", "The writer visits the hospital.", "The writer teaches the piano."], "ex": "最後の文 Now I play the piano for him at his home every weekend.", "pid": "p4"}, {"s": "eng", "u": "長文", "t": "mc", "q": "How much is the camp?", "a": "12,000 yen, and food and the bus are included.", "w": ["12,000 yen, and food is not included.", "30,000 yen.", "It is free."], "ex": "Fee: 12,000 yen (food and bus are included)。", "pid": "p5"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What do the students need to bring?", "a": "A towel and a water bottle.", "w": ["Food and a bus ticket.", "A computer and a pen.", "A towel and lunch."], "ex": "You need to bring a towel and a water bottle.", "pid": "p5"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What should students do by July 10 if they want to join?", "a": "Call Ms. Brown.", "w": ["Pay 30,000 yen.", "Visit Green Hill.", "Send an e-mail to the camp site."], "ex": "please call Ms. Brown by July 10 とあります。", "pid": "p5"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What does the writer think about smartphones at school?", "a": "They are useful if students follow the rules.", "w": ["Students should never use them.", "Teachers should use them in class.", "They are more important than books."], "ex": "2〜3文目と最後の文から、ルールを守れば役に立つという意見です。", "pid": "p6"}, {"s": "eng", "u": "長文", "t": "mc", "q": "What does the writer use a dictionary app for?", "a": "To check new words.", "w": ["To check train times.", "To talk with friends.", "To take pictures."], "ex": "I use a dictionary app when I find new words とあります。", "pid": "p6"}, {"s": "eng", "u": "長文", "t": "mc", "q": "When should students NOT use smartphones, according to the writer?", "a": "During classes.", "w": ["On the way home.", "At lunch time.", "After school."], "ex": "Of course, we should not use them during classes.", "pid": "p6"}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "How will Tom go to Osaka?", "a": "By train.", "w": ["By bus.", "By car.", "By plane."], "ex": "放送文：A: Tom, what are you going to do this weekend? B: I'm going to visit my grandmother in Osaka. I'll go there by train. A: That sounds nice.", "au": [["A", "Tom, what are you going to do this weekend?"], ["B", "I'm going to visit my grandmother in Osaka. I'll go there by train."], ["A", "That sounds nice."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "Where is the blue bag?", "a": "On the sofa.", "w": ["In her room.", "In the kitchen.", "On the desk."], "ex": "放送文：A: Mom, I can't find my blue bag. B: Did you look in your room? A: Yes, but it's not there. B: I saw it on the sofa in the living room.", "au": [["A", "Mom, I can't find my blue bag."], ["B", "Did you look in your room?"], ["A", "Yes, but it's not there."], ["B", "I saw it on the sofa in the living room."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "What time will they watch the movie?", "a": "At five thirty.", "w": ["At three.", "At five.", "At six thirty."], "ex": "放送文：A: Hello. I'd like two tickets for the three o'clock movie. B: I'm sorry. The three o'clock movie is full. The next one starts at five thirty. A: OK. Two tickets for the five thirty movie, please.", "au": [["A", "Hello. I'd like two tickets for the three o'clock movie."], ["B", "I'm sorry. The three o'clock movie is full. The next one starts at five thirty."], ["A", "OK. Two tickets for the five thirty movie, please."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "Who helped Ken with math?", "a": "His sister.", "w": ["His mother.", "His teacher.", "His friend."], "ex": "放送文：A: Ken, you look happy today. B: Yes. I got one hundred points on the math test! A: That's great. Did you study hard? B: Yes. My sister helped me last night.", "au": [["A", "Ken, you look happy today."], ["B", "Yes. I got one hundred points on the math test!"], ["A", "That's great. Did you study hard?"], ["B", "Yes. My sister helped me last night."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "Where will the students practice today?", "a": "In the gym.", "w": ["Outside.", "In the library.", "At the park."], "ex": "放送文：A: Good morning, everyone. This is Mr. Sato. Today it is rainy, so we will not have soccer practice outside. Please come to the gym at four o'clock and bring your indoor shoes. Thank you.", "au": [["A", "Good morning, everyone. This is Mr. Sato. Today it is rainy, so we will not have soccer practice outside. Please come to the gym at four o'clock and bring your indoor shoes. Thank you."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "What did Emi do in Hokkaido?", "a": "She made a snowman.", "w": ["She went skiing.", "She bought a coat.", "She visited her teacher."], "ex": "放送文：A: How was your trip to Hokkaido, Emi? B: It was great. I ate a lot of delicious seafood, but it was very cold. A: Did you see snow? B: Yes, I did. I made a snowman with my cousins.", "au": [["A", "How was your trip to Hokkaido, Emi?"], ["B", "It was great. I ate a lot of delicious seafood, but it was very cold."], ["A", "Did you see snow?"], ["B", "Yes, I did. I made a snowman with my cousins."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "Until what time can the person who asks use the computer?", "a": "Seven fifty.", "w": ["Seven twenty.", "Eight.", "Eight thirty."], "ex": "放送文：A: Dad, can I use your computer? B: Sure, but I need it at eight. How long do you need it? A: About thirty minutes. I need to finish my report. B: OK. It's seven twenty now. You can use it until seven fifty.", "au": [["A", "Dad, can I use your computer?"], ["B", "Sure, but I need it at eight. How long do you need it?"], ["A", "About thirty minutes. I need to finish my report."], ["B", "OK. It's seven twenty now. You can use it until seven fifty."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "Where is the post office?", "a": "Next to the bank.", "w": ["Next to the station.", "In front of the school.", "Behind the library."], "ex": "放送文：A: Excuse me. Is there a post office near here? B: Yes. Go straight for two blocks and turn right. It's next to the bank.", "au": [["A", "Excuse me. Is there a post office near here?"], ["B", "Yes. Go straight for two blocks and turn right. It's next to the bank."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "What does Aya do on Sundays?", "a": "She washes her dog.", "w": ["She walks with her dog.", "She gives food to her cats.", "She goes to school."], "ex": "放送文：A: Hi, I'm Aya. I have a dog and two cats. I take care of them every day. In the morning, I walk with my dog. After school, I give food to my cats. On Sundays, I wash my dog. I love my pets very much.", "au": [["A", "Hi, I'm Aya. I have a dog and two cats. I take care of them every day. In the morning, I walk with my dog. After school, I give food to my cats. On Sundays, I wash my dog. I love my pets very much."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "Which club does Lisa want to join?", "a": "The art club.", "w": ["The basketball team.", "The music club.", "The science club."], "ex": "放送文：A: Which club are you going to join, Lisa? B: I want to join the art club, but my friend wants me to join the basketball team. A: What will you do? B: I'll talk to her. I like drawing more than sports.", "au": [["A", "Which club are you going to join, Lisa?"], ["B", "I want to join the art club, but my friend wants me to join the basketball team."], ["A", "What will you do?"], ["B", "I'll talk to her. I like drawing more than sports."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "When will they have lunch?", "a": "The day after tomorrow.", "w": ["Tomorrow.", "Today.", "Next week."], "ex": "放送文：A: Would you like to have lunch with me tomorrow? B: I'd love to, but I have a dentist appointment at noon. A: How about the day after tomorrow? B: That's fine.", "au": [["A", "Would you like to have lunch with me tomorrow?"], ["B", "I'd love to, but I have a dentist appointment at noon."], ["A", "How about the day after tomorrow?"], ["B", "That's fine."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "What will the two speakers do in the evening?", "a": "They will make dinner together.", "w": ["They will go to a meeting.", "They will buy a suit.", "They will eat at a restaurant."], "ex": "放送文：A: Dad, why are you wearing a suit today? B: I have an important meeting at work. A: Good luck! B: Thank you. I'll be back home at six, so let's make dinner together.", "au": [["A", "Dad, why are you wearing a suit today?"], ["B", "I have an important meeting at work."], ["A", "Good luck!"], ["B", "Thank you. I'll be back home at six, so let's make dinner together."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "When does the penguin show start?", "a": "At eleven.", "w": ["At nine.", "At two.", "At five."], "ex": "放送文：A: Welcome to Midori Zoo. The zoo opens at nine and closes at five. The penguin show starts at eleven, and the lions' feeding time is at two. Please don't give food to the animals. Enjoy your day!", "au": [["A", "Welcome to Midori Zoo. The zoo opens at nine and closes at five. The penguin show starts at eleven, and the lions' feeding time is at two. Please don't give food to the animals. Enjoy your day!"]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "What will the speaker who goes to the supermarket buy?", "a": "Some eggs.", "w": ["Some milk.", "Eggs and milk.", "Nothing."], "ex": "放送文：A: I'm going to the supermarket. Do you need anything? B: Can you buy some eggs and milk? We have no eggs. A: We still have milk, right? B: Oh, you're right. Just eggs, then.", "au": [["A", "I'm going to the supermarket. Do you need anything?"], ["B", "Can you buy some eggs and milk? We have no eggs."], ["A", "We still have milk, right?"], ["B", "Oh, you're right. Just eggs, then."]]}, {"s": "eng", "u": "リスニング", "t": "mc", "q": "Who will go to Australia with Jun?", "a": "Ryo.", "w": ["His brother.", "His teacher.", "Nobody."], "ex": "放送文：A: Hi, Jun. Do you have any plans for this summer vacation? B: I'm going to study English in Australia for two weeks. A: Wow! Are you going alone? B: No, my classmate Ryo is going with me.", "au": [["A", "Hi, Jun. Do you have any plans for this summer vacation?"], ["B", "I'm going to study English in Australia for two weeks."], ["A", "Wow! Are you going alone?"], ["B", "No, my classmate Ryo is going with me."]]}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「抽象」", "a": "ちゅうしょう", "w": ["ちゅうぞう", "ちゅうしょ", "ちょうしょう"], "ex": "「抽象」は「ちゅうしょう」。具体的でない、という意味です。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「概念」", "a": "がいねん", "w": ["がいわん", "きねん", "がんねん"], "ex": "「概念」は「がいねん」。物事の大まかな共通の考えのこと。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「把握」", "a": "はあく", "w": ["はわく", "ばあく", "はくあく"], "ex": "「把握」は「はあく」。しっかり理解すること。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「顕著」", "a": "けんちょ", "w": ["げんちょ", "けんじょ", "けんしょ"], "ex": "「顕著」は「けんちょ」。はっきりと目立つようす。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「妥協」", "a": "だきょう", "w": ["たきょう", "だこう", "だきょ"], "ex": "「妥協」は「だきょう」。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「貢献」", "a": "こうけん", "w": ["こうけい", "くけん", "こうげん"], "ex": "「貢献」は「こうけん」。役に立つこと。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「脅威」", "a": "きょうい", "w": ["きょうえい", "ごうい", "きょうがい"], "ex": "「脅威」は「きょうい」。おびやかすもの。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「懸念」", "a": "けねん", "w": ["けんねん", "かんねん", "けいねん"], "ex": "「懸念」は「けねん」。心配すること。「けんねん」と読まないように注意。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「暫定」", "a": "ざんてい", "w": ["ざんじょう", "ぜんてい", "さんてい"], "ex": "「暫定」は「ざんてい」。仮に決めること。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「傾斜」", "a": "けいしゃ", "w": ["けいじゃ", "けいしょう", "けいしゃく"], "ex": "「傾斜」は「けいしゃ」。ななめになっていること。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「恩恵」", "a": "おんけい", "w": ["おんえ", "おんべい", "いんけい"], "ex": "「恩恵」は「おんけい」。めぐみ、利益のこと。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「衝撃」", "a": "しょうげき", "w": ["しょうけき", "じょうげき", "どうげき"], "ex": "「衝撃」は「しょうげき」。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「克服」", "a": "こくふく", "w": ["かっふく", "こくぶく", "こうふく"], "ex": "「克服」は「こくふく」。困難にうちかうこと。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「拒否」", "a": "きょひ", "w": ["きょふ", "ごひ", "きょうひ"], "ex": "「拒否」は「きょひ」。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「奨励」", "a": "しょうれい", "w": ["しょうりょく", "しょうらい", "しょうれつ"], "ex": "「奨励」は「しょうれい」。すすめはげますこと。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「納得」", "a": "なっとく", "w": ["のうとく", "なとく", "なっどく"], "ex": "「納得」は「なっとく」。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「貴重」", "a": "きちょう", "w": ["きじゅう", "きじょう", "きちじゅう"], "ex": "「貴重」は「きちょう」。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「刻む」", "a": "きざむ", "w": ["きさむ", "きざす", "ほざむ"], "ex": "「刻む」は「きざむ」と読む訓読みです。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「潔い」", "a": "いさぎよい", "w": ["いさましい", "いさぎいい", "きよい"], "ex": "「潔い」は「いさぎよい」。思い切りがよいこと。"}, {"s": "jpn", "u": "漢字読み", "t": "mc", "q": "次の漢字の読みとして正しいものを選べ。\n「志す」", "a": "こころざす", "w": ["こころす", "しざす", "こころさす"], "ex": "「志す」は「こころざす」と読みます。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「彼の意見にサンセイする。」", "a": "賛成", "w": ["参成", "賛正", "替成"], "ex": "「賛成」。意見に同意すること。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「会議で意見を述べる前にキョシュする。」", "a": "挙手", "w": ["拳手", "巨手", "挙首"], "ex": "「挙手」は手をあげること。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「新しい計画をテイアンする。」", "a": "提案", "w": ["堤案", "提按", "低案"], "ex": "「提案」。考えを出すこと。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「順番にジュンジョよく並ぶ。」", "a": "順序", "w": ["順叙", "準序", "順除"], "ex": "「順序」。ものごとの並ぶ順番。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「チームのシキを高める。」", "a": "士気", "w": ["指揮", "死気", "士器"], "ex": "「士気」は意気込みのこと。「指揮」は人を動かすことで意味がちがいます。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「ごみをショリする。」", "a": "処理", "w": ["処里", "所理", "署理"], "ex": "「処理」。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「自然をホゴする。」", "a": "保護", "w": ["保獲", "保穫", "補護"], "ex": "「保護」。守ること。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「経験をカツヨウする。」", "a": "活用", "w": ["括用", "活要", "渇用"], "ex": "「活用」。うまく使うこと。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「試合のケッカを伝える。」", "a": "結果", "w": ["結課", "決果", "結菓"], "ex": "「結果」。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「友人にソウダンする。」", "a": "相談", "w": ["想談", "相淡", "総談"], "ex": "「相談」。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「野菜をサイバイする。」", "a": "栽培", "w": ["裁培", "栽倍", "載培"], "ex": "「栽培」。植物を育てること。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「技術がハッテンする。」", "a": "発展", "w": ["発店", "発転", "初展"], "ex": "「発展」。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「文章をヨウヤクする。」", "a": "要約", "w": ["用約", "要訳", "腰約"], "ex": "「要約」。要点をまとめること。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「新製品をカイハツする。」", "a": "開発", "w": ["開撥", "解発", "開髪"], "ex": "「開発」。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「自由なヒョウゲンを大切にする。」", "a": "表現", "w": ["表限", "標現", "表線"], "ex": "「表現」。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「時間をセツヤクする。」", "a": "節約", "w": ["説約", "切約", "接約"], "ex": "「節約」。むだをなくすこと。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「正しいシセイで座る。」", "a": "姿勢", "w": ["姿製", "資勢", "姿性"], "ex": "「姿勢」。体の構え。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「世界のヘイワを願う。」", "a": "平和", "w": ["平話", "並和", "平加"], "ex": "「平和」。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「友人を元気づけてはげます。」", "a": "励ます", "w": ["激ます", "勇ます", "勤ます"], "ex": "「励ます」。元気づけること。「激しい」とは別の字です。"}, {"s": "jpn", "u": "漢字書き", "t": "mc", "q": "次の文の傍線部を漢字（送りがなを含む）に直すとき、正しいものを選べ。\n「会場のフンイキが明るい。」", "a": "雰囲気", "w": ["霧囲気", "雰位気", "雰囲器"], "ex": "「雰囲気」。「雰」は雨かんむりの字です。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の慣用句「猫の手も借りたい」の意味として最も適切なものはどれか。", "a": "とてもいそがしい", "w": ["ひまである", "役に立たない", "こまっている"], "ex": "人手が足りないほどいそがしいことのたとえ。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の慣用句「棚に上げる」の意味として最も適切なものはどれか。", "a": "自分に都合の悪いことにはふれない", "w": ["大切にしまっておく", "高く評価する", "目立つところに飾る"], "ex": "自分の欠点を問題にしないで、他人を非難する場面などで使います。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の慣用句「油を売る」の意味として最も適切なものはどれか。", "a": "むだ話をして仕事をなまける", "w": ["商売がうまくいく", "熱心に働く", "品物を安く売る"], "ex": "江戸時代、油売りが客と世間話をしながら商売したことから。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の慣用句「顔が広い」の意味として最も適切なものはどれか。", "a": "知り合いが多い", "w": ["顔が大きい", "自信がある", "人気がある"], "ex": "交際範囲が広いこと。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の慣用句「さじを投げる」の意味として最も適切なものはどれか。", "a": "見込みがないとあきらめる", "w": ["やる気を出す", "道具を大切にする", "人に任せる"], "ex": "医者が薬を調合するさじを投げ出す、が由来。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次のことわざ「急がば回れ」の意味として最も適切なものはどれか。", "a": "急ぐときは、危険な近道より安全な方法をとるほうが結局早い", "w": ["急いで行動すべきだ", "遠回りは必ず損をする", "急ぐと必ず失敗する"], "ex": "「急ぐときほどあわてず、確実な道を選べ」という教え。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次のことわざ「石の上にも三年」の意味として最も適切なものはどれか。", "a": "つらくても辛抱すれば、やがて成功する", "w": ["石は三年で割れる", "三年待てば必ず願いがかなう", "石の上は座りにくい"], "ex": "冷たい石でも三年座り続ければ暖まる、という意味から。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次のことわざ「七転び八起き」の意味として最も適切なものはどれか。", "a": "何度失敗してもくじけず立ち上がる", "w": ["失敗するとすぐに転ぶ", "七回失敗すると終わる", "運が悪い"], "ex": "何度失敗しても、あきらめずに努力すること。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次のことわざ「情けは人の為ならず」の本来の意味として最も適切なものはどれか。", "a": "人に親切にすれば、めぐりめぐって自分にもよい報いがある", "w": ["人に親切にするのは、その人のためにならない", "情けをかけると人は甘える", "自分のことだけ考えればよい"], "ex": "「人のためではなく、結局は自分のため」という意味。反対の意味に誤用されやすいので注意。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次のことわざ「弘法にも筆の誤り」の意味として最も適切なものはどれか。", "a": "名人でも失敗することがある", "w": ["筆は大切に使うべきだ", "書道は難しい", "弘法は字が下手だ"], "ex": "書の名人の弘法大師でも書き損じることがある、という意味。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次のことわざ「朱に交われば赤くなる」の意味として最も適切なものはどれか。", "a": "つき合う人によって、よくも悪くも影響を受ける", "w": ["赤い色は目立つ", "努力は報われる", "人は見かけによらない"], "ex": "朱色と交わると赤く染まる、が由来。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の四字熟語「一石二鳥」の意味として最も適切なものはどれか。", "a": "一つのことで二つの利益を得る", "w": ["一人で二つの仕事をする", "小さなことが大きな結果になる", "二つのことを同時にして失敗する"], "ex": "一つの石で二羽の鳥を落とす、が由来。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の四字熟語「以心伝心」の意味として最も適切なものはどれか。", "a": "言葉に出さなくても気持ちが通じ合う", "w": ["心を入れかえる", "心配を人に伝える", "思いやりを持つ"], "ex": "心から心へ伝わる、という意味。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の四字熟語「自画自賛」の意味として最も適切なものはどれか。", "a": "自分で自分のことをほめる", "w": ["自分で絵をかく", "自分を責める", "人の作品を批評する"], "ex": "自分でかいた絵に自分で賛（詩や文）を書くことから。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の四字熟語「大器晩成」の意味として最も適切なものはどれか。", "a": "大人物は、遅れて才能があらわれる", "w": ["大きな器は完成が遅い", "年をとると成功しにくい", "急いで成功する"], "ex": "大きな器がなかなか完成しないように、大人物は遅れて大成する。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の四字熟語「温故知新」の意味として最も適切なものはどれか。", "a": "昔のことを学んで、新しい知識や考えを得る", "w": ["新しいものを大切にする", "古い物を捨てる", "故郷をなつかしむ"], "ex": "『論語』にある言葉。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の四字熟語「異口同音」の意味として最も適切なものはどれか。", "a": "多くの人が口をそろえて同じことを言う", "w": ["全員が別々の意見を言う", "口に出さず考える", "同じ音で歌う"], "ex": "異なる口から同じ音が出る、が由来。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の文の（　）に入る敬語として最も適切なものはどれか。\n「先生が資料を（　）。」（「見る」の尊敬語）", "a": "ご覧になる", "w": ["拝見する", "見せていただく", "お見になる"], "ex": "「見る」の尊敬語は「ご覧になる」。「拝見する」は謙譲語です。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の文の（　）に入る敬語として最も適切なものはどれか。\n「私が先生に資料を（　）。」（「見せる」の謙譲語）", "a": "お見せする", "w": ["お見せになる", "ご覧になる", "お見せくださる"], "ex": "自分の動作は謙譲語「お～する」を使います。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の文の（　）に入る敬語として最も適切なものはどれか。\n「お客様が（　）。」（「来る」の尊敬語）", "a": "いらっしゃいました", "w": ["参りました", "伺いました", "いたしました"], "ex": "「来る」の尊敬語は「いらっしゃる」「お見えになる」。「参る」は謙譲語です。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "次の文の（　）に入る敬語として最も適切なものはどれか。\n「私が明日、お宅に（　）。」（「行く」の謙譲語）", "a": "伺います", "w": ["いらっしゃいます", "おいでになります", "行かれます"], "ex": "訪問するという謙譲語は「伺う」「参る」。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "「具体」の対義語（反対の意味の言葉）はどれか。", "a": "抽象", "w": ["実際", "部分", "一般"], "ex": "「具体」は形があって分かりやすいこと。反対は「抽象」。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "「需要」の対義語はどれか。", "a": "供給", "w": ["消費", "生産", "輸出"], "ex": "「需要」は買いたい量、「供給」は売りたい量。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "「案外」と最も意味が近い言葉はどれか。", "a": "意外", "w": ["当然", "もちろん", "決して"], "ex": "予想とちがうようすを表す言葉。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "「消極的」の対義語はどれか。", "a": "積極的", "w": ["否定的", "客観的", "悲観的"], "ex": "進んで行動するようす。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "熟語「登山」の構成として正しいものはどれか。", "a": "下の字が上の字の目的や対象を表す（山に登る）", "w": ["似た意味の漢字を重ねる", "反対の意味の漢字を重ねる", "上の字が下の字を修飾する"], "ex": "「～を（に）＋動詞」の関係。「読書」「植林」も同じ構成です。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "熟語「高低」の構成として正しいものはどれか。", "a": "反対の意味の漢字を重ねる", "w": ["似た意味の漢字を重ねる", "上の字が下の字を修飾する", "下の字が上の字の目的を表す"], "ex": "「高」と「低」は反対の意味。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "熟語「温暖」の構成として正しいものはどれか。", "a": "似た意味の漢字を重ねる", "w": ["反対の意味の漢字を重ねる", "上の字が下の字を修飾する", "下の字が上の字の目的を表す"], "ex": "「温」も「暖」も「あたたかい」という意味。"}, {"s": "jpn", "u": "語句", "t": "mc", "q": "熟語「青空」の構成として正しいものはどれか。", "a": "上の字が下の字を修飾する", "w": ["似た意味の漢字を重ねる", "反対の意味の漢字を重ねる", "下の字が上の字の目的を表す"], "ex": "「青い空」と読めるので、上が下を修飾。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "次の傍線部の「ない」のうち、助動詞であるものはどれか。", "a": "私は明日学校に行かない。", "w": ["今日はあまり寒くない。", "ここには誰もいない。", "この部屋は静かではない。"], "ex": "「行かない」は動詞「行く」に付いて否定を表す助動詞。「寒くない」「静かではない」は補助形容詞、「いない」は形容詞です。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "次の文の「れる」と同じ意味（尊敬）で使われているものはどれか。\n「先生が教室に来られる。」", "a": "校長先生が話される。", "w": ["昔のことが思い出される。", "この果物は生でも食べられる。", "犬にほえられた。"], "ex": "「話される」は動作をする人を敬う尊敬。他は順に自発・可能・受け身。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "次の文の「れる」の意味として正しいものはどれか。\n「故郷のことが思い出される。」", "a": "自発", "w": ["尊敬", "可能", "受け身"], "ex": "自然とそうなってしまう意味は自発。「しのばれる」「案じられる」なども同じ。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "次の文の「られる」の意味として正しいものはどれか。\n「この魚は生で食べられる。」", "a": "可能", "w": ["尊敬", "自発", "受け身"], "ex": "「～することができる」の意味は可能。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "次の文の「れた」の意味として正しいものはどれか。\n「雨に降られた。」", "a": "受け身", "w": ["尊敬", "可能", "自発"], "ex": "他から動作を受ける意味は受け身。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "「読まない」の「読ま」の活用形はどれか。", "a": "未然形", "w": ["連用形", "終止形", "仮定形"], "ex": "「ない」に続く形は未然形。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "「読んだ」の「読ん」の活用形はどれか。", "a": "連用形", "w": ["未然形", "終止形", "仮定形"], "ex": "「た」に続く形は連用形（音便の形）。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "「読めば」の「読め」の活用形はどれか。", "a": "仮定形", "w": ["未然形", "連用形", "命令形"], "ex": "「ば」に続く形は仮定形。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "動詞「来る」の活用の種類はどれか。", "a": "カ行変格活用", "w": ["上一段活用", "下一段活用", "五段活用"], "ex": "「来る」は「こ・き・くる・くれ・こい」と変化するカ行変格活用（カ変）。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "動詞「食べる」の活用の種類はどれか。", "a": "下一段活用", "w": ["上一段活用", "五段活用", "サ行変格活用"], "ex": "「食べない」とすると「べ」がエ段なので下一段活用。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "次の文の傍線部の品詞として正しいものはどれか。\n「とても美しい花が咲いた。」（「とても」）", "a": "副詞", "w": ["形容詞", "名詞", "連体詞"], "ex": "用言「美しい」を修飾する語で活用しないので副詞。"}, {"s": "jpn", "u": "文法", "t": "mc", "q": "次の傍線部の「の」のうち、体言（名詞）の代わりをしているものはどれか。", "a": "走るのが好きだ。", "w": ["私の本を貸す。", "雨の日は休みだ。", "青い空の広がり。"], "ex": "「走るのが」の「の」は「こと」に置き換えられる準体助詞。他は連体修飾を表す。"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「竹取の翁」とはどのような人か。", "a": "野山で竹を取って、いろいろなことに使っていた老人", "w": ["竹でつくられた人形", "竹を売り歩く商人", "竹の中に住む精霊"], "ex": "「竹を取りつつ、よろづのことに使ひけり」とあります。", "pid": "k1"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「あやしがりて」の意味として最も適切なものはどれか。", "a": "不思議に思って", "w": ["恐ろしがって", "なつかしがって", "腹を立てて"], "ex": "「あやし」は「不思議だ」の意味。", "pid": "k1"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「三寸ばかりなる人」の背の高さは、およそどれくらいか。", "a": "約9cm", "w": ["約3cm", "約30cm", "約90cm"], "ex": "一寸が約3cmなので、三寸は約9cm。", "pid": "k1"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「いふ」を現代かなづかいに直したものとして正しいものはどれか。", "a": "いう", "w": ["いぶ", "ゆう", "いふ"], "ex": "語頭以外の「ふ」は「う」に直す。「いふ」→「いう」。", "pid": "k1"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "筆者が春は最もよいとしているのは、どの時間帯か。", "a": "夜明け", "w": ["夕暮れ", "夜", "昼"], "ex": "「春は、あけぼの。」とあります。", "pid": "k2"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「やうやう」を現代かなづかいで書き、意味を答えたものとして正しいものはどれか。", "a": "ようよう（だんだん）", "w": ["やうやう（すぐに）", "ようよう（とつぜん）", "ゆうゆう（ゆっくり）"], "ex": "「やう」は「よう」と読み、「やうやう」は「だんだん」の意味。", "pid": "k2"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「をかし」の意味として最も適切なものはどれか。", "a": "趣がある", "w": ["こっけいだ", "恐ろしい", "悲しい"], "ex": "「をかし」は明るく知的な美しさを感じる「趣がある」の意味。", "pid": "k2"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "夏の夜、月のない闇夜でもすばらしいと筆者が感じているのは、何が飛び交っているからか。", "a": "蛍", "w": ["星", "雲", "雨"], "ex": "「やみもなほ、蛍の多く飛びちがひたる」とあります。", "pid": "k2"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "この文章が伝えようとしている考え方として最も適切なものはどれか。", "a": "すべてのものは移り変わり、栄えた者もやがて衰える", "w": ["努力すれば必ず成功する", "鐘の音は人の心をいやす", "強い者が最後には勝つ"], "ex": "「諸行無常」「盛者必衰」が中心の考え（無常観）。", "pid": "k3"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「おごれる人も久しからず」の意味として最も適切なものはどれか。", "a": "おごり高ぶっている人も、長くは続かない", "w": ["おごってくれる人はなかなかいない", "おごり高ぶる人は長生きだ", "人はおごりを久しく忘れない"], "ex": "「おごれる人」は思い上がった人。「久しからず」は長続きしない。", "pid": "k3"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「ただ春の夜の夢のごとし」に使われている表現技法はどれか。", "a": "直喩（比喩）", "w": ["擬人法", "倒置", "体言止め"], "ex": "「ごとし」を使ってたとえる直喩。栄華のはかなさを「春の夜の夢」にたとえる。", "pid": "k3"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「風の前の塵に同じ」は、何をたとえているか。", "a": "強い者の滅びやすさ（はかなさ）", "w": ["風の強さ", "塵の多さ", "自然の美しさ"], "ex": "風の前の塵のように、勢いの強い者もあっけなく滅びることをたとえる。", "pid": "k3"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "筆者は一日中何をしていたか。", "a": "硯に向かって、心に浮かぶことを書きつづけていた", "w": ["硯を買いに出かけていた", "客と話をして過ごしていた", "手紙を待ち続けていた"], "ex": "「日暮らし、硯にむかひて…書きつくれば」とあります。", "pid": "k4"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「こそ…ものぐるほしけれ」のように、文中の語を強調する決まりを何というか。", "a": "係り結び", "w": ["倒置", "対句", "体言止め"], "ex": "「こそ」があると文末が已然形（けれ）になる。", "pid": "k4"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "「つれづれなるままに」の意味として最も適切なものはどれか。", "a": "することがなく退屈なので", "w": ["忙しいので", "楽しくて", "急いでいるので"], "ex": "「つれづれ」は退屈なようす。", "pid": "k4"}, {"s": "jpn", "u": "古文", "t": "mc", "q": "筆者の気持ちとして最も適切なものはどれか。", "a": "書いているうちに、不思議なほど気持ちが高ぶり、夢中になる", "w": ["書くことに飽きてしまった", "書くのがつらくて仕方ない", "何も思い浮かばず困っている"], "ex": "「あやしうこそものぐるほしけれ」＝不思議なほど気が変になりそうに夢中になる、という意味。", "pid": "k4"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "筆者の主張として最も適切なものはどれか。", "a": "道具に頼る場面と、自分で考える場面を意識して使い分けることが大切だ。", "w": ["翻訳アプリは使うべきではない。", "辞書を引くことだけが勉強だ。", "答えはすぐに手に入れるのがよい。"], "ex": "最後の文に主張が述べられています。", "pid": "j1"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "文中の「その過程」が指す内容として最も適切なものはどれか。", "a": "自分で言葉の意味を考え、いくつかの候補から選ぶこと", "w": ["辞書を引く手間を省くこと", "答えをすぐに手に入れること", "翻訳アプリを使うこと"], "ex": "直前の文の内容を指しています。", "pid": "j1"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "本文の内容に合うものはどれか。", "a": "便利であることと、身につくことは別である。", "w": ["翻訳アプリは便利ではない。", "道具を使うと必ず理解が深まる。", "自分で考える場面は不要である。"], "ex": "第2文に書かれています。", "pid": "j1"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "文頭の「だから」の働きとして最も適切なものはどれか。", "a": "前の内容を理由として、結論を述べる", "w": ["前の内容と反対のことを述べる", "話題を変える", "前の内容に例を付け加える"], "ex": "順接の接続詞。直前までの理由から主張を導いています。", "pid": "j1"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "文中の「この性質」が指す内容として最も適切なものはどれか。", "a": "海の水が温まりにくく、冷めにくいこと", "w": ["陸の地面が温まりやすいこと", "暖かい空気が軽いこと", "風が吹き込むこと"], "ex": "直前の文の内容を指しています。", "pid": "j2"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "昼間に海風が吹くのはなぜか。", "a": "陸の空気が先に暖まって上昇し、そこへ海から風が吹き込むから", "w": ["海の水のほうが先に暖まるから", "夜に陸が先に冷えるから", "海から暖かい空気が流れ込むから"], "ex": "陸が先に暖まる→上昇→海から風、の順で説明されています。", "pid": "j2"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "本文の内容に合うものはどれか。", "a": "夜になると、風の向きは昼と逆になる。", "w": ["海の水は陸の地面より温まりやすい。", "海風は夜に最も強くなる。", "暖かい空気は重いので下降する。"], "ex": "最後の文に書かれています。", "pid": "j2"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "この文章の説明のしかたとして最も適切なものはどれか。", "a": "原因となる性質から順に、結果として起こる現象を説明している", "w": ["筆者の体験をもとに感想を述べている", "二つの意見を比べて批判している", "結論を最初に述べ、反対意見をしりぞけている"], "ex": "性質→昼間の変化→海風→夜、と順を追って説明しています。", "pid": "j2"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "このときの翔太の気持ちとして最も適切なものはどれか。", "a": "出場できない悔しさを抱えながらも、仲間の勝利を強く願っている", "w": ["レギュラーになれたことを誇りに思っている", "仲間をうらやましく思い、試合に興味を失っている", "試合に負けることを望んでいる"], "ex": "「それでも」から、悔しさがあっても応援する気持ちが読み取れます。", "pid": "j3"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "「タオルを握る手に自然と力がこもった」から読み取れることとして最も適切なものはどれか。", "a": "仲間を応援する思いが、無意識のうちに強くなっている", "w": ["試合の内容に退屈している", "寒さに耐えている", "レギュラーに選ばれる自信がある"], "ex": "「自然と」に、思わず力が入る気持ちが表れています。", "pid": "j3"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "本文の内容に合うものはどれか。", "a": "翔太は三年間、一度もレギュラーになれなかった。", "w": ["翔太はこの試合で活躍した。", "翔太のチームは負けている。", "翔太は声を張り上げて応援している。"], "ex": "「自分は一度もレギュラーになれなかった」とあります。声は「声にならない声」です。", "pid": "j3"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "「あと一点を守ろう」という表現から読み取れる試合の状況として最も適切なものはどれか。", "a": "翔太のチームが一点差でリードしている", "w": ["翔太のチームが一点差で負けている", "同点で延長戦に入っている", "すでに試合に勝っている"], "ex": "一点を「守る」のはリードしている側です。", "pid": "j3"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "鍋に対する「私」の見方の変化として最も適切なものはどれか。", "a": "ただの古い道具から、家族の思い出がつまった大切なものへ", "w": ["便利な道具から、役に立たない道具へ", "高価なものから、安いものへ", "新しいものから、古いものへ"], "ex": "最後の文に「ただの道具だった」「家族の時間を抱えた存在」とあります。", "pid": "j4"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "祖母が新しい鍋を買わない理由として最も適切なものはどれか。", "a": "家族の思い出がつまった大切な鍋だから", "w": ["新しい鍋は高価だから", "古い鍋のほうが使いやすいから", "父に買ってもらった鍋だから"], "ex": "祖母の言葉から、毎年の正月の雑煮という家族の時間が読み取れます。", "pid": "j4"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "「首を振った」の意味として最も適切なものはどれか。", "a": "「新しい鍋を買う」ことを断った", "w": ["わからないという意思を示した", "うれしさを表した", "おどろいた"], "ex": "首を横に振る動作は否定・拒否を表します。", "pid": "j4"}, {"s": "jpn", "u": "現代文", "t": "mc", "q": "「私は黙って鍋を見つめた」ときの「私」の心情として最も適切なものはどれか。", "a": "祖母の言葉に心を動かされている", "w": ["祖母に腹を立てている", "鍋の古さにあきれている", "話題を変えたいと思っている"], "ex": "「黙って」見つめる様子と、その後の見方の変化から、心を動かされたことがわかります。", "pid": "j4"}, {"s": "sci", "u": "物理", "t": "num", "q": "抵抗10Ωの電熱線に6Vの電圧を加えた。流れる電流は何Aか。", "a": "0.6", "ex": "オームの法則 I=V÷R=6÷10=0.6A。"}, {"s": "sci", "u": "物理", "t": "num", "q": "ある抵抗に12Vの電圧を加えると0.5Aの電流が流れた。この抵抗は何Ωか。", "a": "24", "ex": "R=V÷I=12÷0.5=24Ω。"}, {"s": "sci", "u": "物理", "t": "num", "q": "10Ωと20Ωの抵抗を直列につないだ。全体の抵抗は何Ωか。", "a": "30", "ex": "直列つなぎの合成抵抗は和。10+20=30Ω。"}, {"s": "sci", "u": "物理", "t": "num", "q": "20Ωと30Ωの抵抗を並列につないだ。全体の抵抗は何Ωか。", "a": "12", "ex": "1/R=1/20+1/30=5/60=1/12 なので R=12Ω。"}, {"s": "sci", "u": "物理", "t": "num", "q": "100Vの電源につないだ電気器具に2Aの電流が流れた。消費電力は何Wか。", "a": "200", "ex": "電力(W)=電圧(V)×電流(A)=100×2=200W。"}, {"s": "sci", "u": "物理", "t": "num", "q": "60Wの電球を3時間使った。電力量は何Whか。", "a": "180", "ex": "電力量(Wh)=電力(W)×時間(h)=60×3=180Wh。"}, {"s": "sci", "u": "物理", "t": "num", "q": "質量300gの物体にはたらく重力の大きさは何Nか。（100gの物体にはたらく重力を1Nとする）", "a": "3", "ex": "100gで1Nなので、300gは3N。"}, {"s": "sci", "u": "物理", "t": "num", "q": "600Nの力が面積0.5m²の面に垂直にはたらいている。圧力は何Paか。", "a": "1200", "ex": "圧力(Pa)=力(N)÷面積(m²)=600÷0.5=1200Pa。"}, {"s": "sci", "u": "物理", "t": "num", "q": "ばねに1Nの力を加えると2cmのびる。このばねに3Nの力を加えると何cmのびるか。", "a": "6", "ex": "ばねののびは力に比例（フックの法則）。2×3=6cm。"}, {"s": "sci", "u": "物理", "t": "num", "q": "10Nの力で物体を力の向きに3m動かした。仕事は何Jか。", "a": "30", "ex": "仕事(J)=力(N)×距離(m)=10×3=30J。"}, {"s": "sci", "u": "物理", "t": "num", "q": "60Jの仕事を5秒間で行った。仕事率は何Wか。", "a": "12", "ex": "仕事率(W)=仕事(J)÷時間(s)=60÷5=12W。"}, {"s": "sci", "u": "物理", "t": "num", "q": "120mを20秒で走った。平均の速さは何m/sか。", "a": "6", "ex": "速さ=距離÷時間=120÷20=6m/s。"}, {"s": "sci", "u": "物理", "t": "num", "q": "時速72kmで走る自動車の速さは秒速何mか。", "a": "20", "ex": "72km=72000m、1時間=3600秒。72000÷3600=20m/s。"}, {"s": "sci", "u": "物理", "t": "num", "q": "花火が光ってから3秒後に音が聞こえた。音の速さを340m/sとすると、花火までの距離は何mか。", "a": "1020", "ex": "距離=速さ×時間=340×3=1020m。光の伝わる時間は無視できます。"}, {"s": "sci", "u": "物理", "t": "num", "q": "空気中で3.0Nのおもりを水中に入れると、ばねばかりの値が2.2Nになった。おもりにはたらく浮力は何Nか。", "a": "0.8", "ex": "浮力=空気中の値−水中の値=3.0−2.2=0.8N。"}, {"s": "sci", "u": "物理", "t": "num", "q": "鏡に光が入射角30°で当たった。反射角は何度か。", "a": "30", "ex": "光の反射の法則により、入射角と反射角は等しい。"}, {"s": "sci", "u": "物理", "t": "mc", "q": "凸レンズの焦点距離の2倍の位置に物体を置いたとき、反対側の焦点距離の2倍の位置にできる像はどれか。", "a": "物体と同じ大きさの上下左右が逆向きの実像", "w": ["物体より大きい実像", "物体より小さい虚像", "物体と同じ向きの虚像"], "ex": "焦点距離の2倍の位置では、同じ大きさの倒立実像ができます。"}, {"s": "sci", "u": "物理", "t": "mc", "q": "電車が急に動き出したとき、乗っている人が後ろに倒れそうになるのはなぜか。", "a": "慣性により、人はその場にとどまろうとするから", "w": ["人に後ろ向きの力がはたらくから", "床の摩擦がなくなるから", "重力が弱くなるから"], "ex": "慣性の法則。物体は、力がはたらかなければ、静止または等速直線運動を続けようとします。"}, {"s": "sci", "u": "物理", "t": "mc", "q": "物体Aが物体Bを押すと、物体Bも物体Aを押し返す。この関係を何というか。", "a": "作用・反作用の法則", "w": ["慣性の法則", "フックの法則", "オームの法則"], "ex": "2つの物体の間にはたらく、大きさが等しく向きが反対の力の関係。"}, {"s": "sci", "u": "物理", "t": "mc", "q": "電流計・電圧計のつなぎ方として正しいものはどれか。", "a": "電流計は回路に直列、電圧計は調べたい部分に並列につなぐ", "w": ["どちらも直列につなぐ", "どちらも並列につなぐ", "電流計は並列、電圧計は直列につなぐ"], "ex": "電流計は電流の通り道に、電圧計は両端に並列にして測ります。"}, {"s": "sci", "u": "物理", "t": "mc", "q": "物体が一定の速さで一直線上を動く運動を何というか。", "a": "等速直線運動", "w": ["自由落下運動", "等加速度運動", "円運動"], "ex": "力がはたらかない（つり合っている）ときの運動。"}, {"s": "sci", "u": "物理", "t": "mc", "q": "水平な面上で物体にはたらく力がつり合っているとき、物体の運動として正しいものはどれか。", "a": "静止し続けるか、等速直線運動を続ける", "w": ["だんだん速くなる", "だんだん遅くなる", "向きを変える"], "ex": "力がつり合っているとき、運動の状態は変わりません。"}, {"s": "sci", "u": "物理", "t": "mc", "q": "エネルギーの保存について、振り子の運動で正しいものはどれか。", "a": "摩擦や空気抵抗がなければ、力学的エネルギーは一定に保たれる", "w": ["最下点で位置エネルギーが最大になる", "最高点で運動エネルギーが最大になる", "エネルギーは増え続ける"], "ex": "最高点で位置エネルギー最大、最下点で運動エネルギー最大。その和は一定です。"}, {"s": "sci", "u": "物理", "t": "mc", "q": "磁界の中を流れる電流が受ける力を利用した装置はどれか。", "a": "モーター", "w": ["発電機", "変圧器", "電熱器"], "ex": "モーターは電流が磁界から受ける力で回転します。発電機は電磁誘導を利用します。"}, {"s": "sci", "u": "化学", "t": "num", "q": "質量54g、体積20cm³の金属の密度は何g/cm³か。", "a": "2.7", "ex": "密度=質量÷体積=54÷20=2.7g/cm³。"}, {"s": "sci", "u": "化学", "t": "num", "q": "食塩20gを水80gにとかした。この食塩水の質量パーセント濃度は何％か。", "a": "20", "ex": "濃度(%)=溶質÷(溶質+溶媒)×100=20÷100×100=20%。"}, {"s": "sci", "u": "化学", "t": "num", "q": "銅4.0gを加熱して完全に酸化させたら、酸化銅が5.0gできた。結びついた酸素は何gか。", "a": "1.0", "ex": "質量保存の法則より、酸化銅5.0g−銅4.0g=1.0g。"}, {"s": "sci", "u": "化学", "t": "num", "q": "銅と酸素は4：1の質量比で結びつく。銅6.0gを完全に酸化させると、酸化銅は何gできるか。", "a": "7.5", "ex": "銅6.0gと結びつく酸素は6.0÷4=1.5g。酸化銅は6.0+1.5=7.5g。"}, {"s": "sci", "u": "化学", "t": "num", "q": "水を電気分解すると、陰極で水素、陽極で酸素が発生する。水素が20cm³発生したとき、酸素は何cm³発生するか。", "a": "10", "ex": "水素：酸素の体積比は2：1。"}, {"s": "sci", "u": "化学", "t": "num", "q": "10％の食塩水200gには、食塩が何gとけているか。", "a": "20", "ex": "溶質の質量=溶液の質量×濃度=200×0.10=20g。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "水の化学式として正しいものはどれか。", "a": "H₂O", "w": ["CO₂", "NaCl", "O₂"], "ex": "水は水素原子2個と酸素原子1個からできています。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "二酸化炭素を石灰水に通したときの変化として正しいものはどれか。", "a": "石灰水が白くにごる", "w": ["石灰水が青くなる", "石灰水が赤くなる", "変化しない"], "ex": "二酸化炭素の確認に石灰水を使います。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "酸素を発生させる方法として正しいものはどれか。", "a": "二酸化マンガンにうすい過酸化水素水を加える", "w": ["石灰石にうすい塩酸を加える", "亜鉛にうすい塩酸を加える", "塩化アンモニウムと水酸化カルシウムを加熱する"], "ex": "二酸化マンガンは触媒としてはたらきます。選択肢は順に、二酸化炭素・水素・アンモニアの発生方法。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "水素を発生させる方法として正しいものはどれか。", "a": "亜鉛にうすい塩酸を加える", "w": ["石灰石にうすい塩酸を加える", "二酸化マンガンにうすい過酸化水素水を加える", "塩化アンモニウムと水酸化カルシウムを加熱する"], "ex": "金属と酸が反応して水素が発生します。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "アンモニアの性質として正しいものはどれか。", "a": "水に非常によくとけ、水溶液はアルカリ性を示す", "w": ["水にほとんどとけない", "無臭で空気より重い", "水溶液は酸性を示す"], "ex": "アンモニアは刺激臭があり、水溶液はアルカリ性。上方置換法で集めます。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "BTB溶液を加えたとき、中性の水溶液は何色になるか。", "a": "緑色", "w": ["黄色", "青色", "赤色"], "ex": "BTB溶液は酸性で黄色、中性で緑色、アルカリ性で青色。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "フェノールフタレイン溶液を加えると赤くなる水溶液はどれか。", "a": "アルカリ性の水溶液", "w": ["酸性の水溶液", "中性の水溶液", "どの水溶液でも赤くなる"], "ex": "アルカリ性で赤色に変化します。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "酸性の水溶液に共通して含まれるイオンはどれか。", "a": "水素イオン", "w": ["水酸化物イオン", "ナトリウムイオン", "塩化物イオン"], "ex": "酸は水にとけて水素イオン（H⁺）を生じます。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "塩酸と水酸化ナトリウム水溶液が過不足なく反応したときにできる物質の組み合わせとして正しいものはどれか。", "a": "塩化ナトリウムと水", "w": ["水素と酸素", "塩化ナトリウムと二酸化炭素", "水酸化ナトリウムと水素"], "ex": "酸とアルカリの中和で、塩と水ができます。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "水素が燃えるときの化学反応式として正しいものはどれか。", "a": "2H₂＋O₂ → 2H₂O", "w": ["H₂＋O₂ → H₂O", "H₂＋2O₂ → 2H₂O", "2H₂＋2O₂ → 2H₂O"], "ex": "左右で原子の数が等しくなるように係数をつけます。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "酸化銅を炭素の粉末と混ぜて加熱したときに起こる反応として正しいものはどれか。", "a": "酸化銅は還元されて銅になり、炭素は酸化されて二酸化炭素になる", "w": ["銅が酸化されて酸化銅になる", "炭素が還元されて二酸化炭素になる", "何も変化しない"], "ex": "酸化銅は酸素をうばわれて銅になる（還元）。炭素は酸素と結びつく（酸化）。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "塩化銅水溶液を電気分解したとき、陰極に付着する物質はどれか。", "a": "銅", "w": ["塩素", "水素", "酸素"], "ex": "陰極に銅がつき、陽極から塩素が発生します。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "物質が状態変化しても変わらないものはどれか。", "a": "質量", "w": ["体積", "密度", "粒子の間隔"], "ex": "状態変化では体積は変わりますが、質量は変わりません。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "液体の混合物から、沸点の差を利用して物質を分けとる方法はどれか。", "a": "蒸留", "w": ["ろ過", "再結晶", "クロマトグラフィー"], "ex": "エタノールと水の混合物などを加熱して分けます。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "純粋な物質（純物質）はどれか。", "a": "蒸留水", "w": ["食塩水", "空気", "海水"], "ex": "1種類の物質だけでできているものが純物質です。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "金属の性質として正しいものはどれか。", "a": "電気をよく通し、みがくと光る", "w": ["どの金属も磁石につく", "たたくと割れる", "電気を通さない"], "ex": "金属には電気伝導性・熱伝導性・金属光沢・展性・延性があります。磁石につくのは鉄などの一部です。"}, {"s": "sci", "u": "化学", "t": "mc", "q": "質量保存の法則について正しい説明はどれか。", "a": "化学変化の前後で、物質全体の質量は変わらない", "w": ["化学変化の前後で、原子の種類が変わる", "気体が発生すると質量が必ず減る", "密閉した容器内でも、化学変化の前後で質量が変わる"], "ex": "密閉した容器内なら質量は変わりません。"}, {"s": "sci", "u": "生物", "t": "num", "q": "エンドウの丸い種子（優性、遺伝子型Aa）どうしをかけ合わせて、できた種子を800個得た。このうち、しわのある種子（aa）は理論上何個か。", "a": "200", "ex": "Aa×Aa から、AA：Aa：aa=1：2：1。しわ(aa)は1/4で800÷4=200個。"}, {"s": "sci", "u": "生物", "t": "num", "q": "Aaの個体を自家受粉させたとき、できる子のうち遺伝子型がAaになる割合は全体の何％か。", "a": "50", "ex": "AA：Aa：aa=1：2：1 なので、Aaは2/4=50%。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "植物の光合成について正しい説明はどれか。", "a": "光を受けて、二酸化炭素と水からデンプンなどと酸素をつくる", "w": ["酸素と水からデンプンをつくる", "夜間に最もさかんに行われる", "動物の細胞でも同じように行われる"], "ex": "光合成は葉緑体で行われ、光エネルギーを利用します。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "植物の細胞に見られるが、動物の細胞には見られないつくりはどれか。", "a": "葉緑体と細胞壁", "w": ["核と細胞膜", "細胞質と核", "ミトコンドリア"], "ex": "植物の細胞には細胞壁・葉緑体・液胞があります。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "顕微鏡の使い方として正しいものはどれか。", "a": "最初は低倍率で観察し、ピントを合わせる", "w": ["最初から高倍率で観察する", "対物レンズはプレパラートに近づけながら見る", "反射鏡は使わない"], "ex": "低倍率→高倍率の順。ピントは対物レンズとプレパラートを遠ざけながら合わせます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "被子植物で、受粉後に種子になる部分と、果実になる部分の組み合わせとして正しいものはどれか。", "a": "胚珠が種子になり、子房が果実になる", "w": ["子房が種子になり、胚珠が果実になる", "柱頭が種子になり、花弁が果実になる", "胚珠が果実になり、やくが種子になる"], "ex": "胚珠→種子、子房→果実。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "だ液にふくまれる消化酵素アミラーゼのはたらきとして正しいものはどれか。", "a": "デンプンを糖に分解する", "w": ["タンパク質をアミノ酸に分解する", "脂肪を分解する", "糖をデンプンに合成する"], "ex": "だ液中のアミラーゼはデンプンを分解します。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "タンパク質を分解する消化酵素を含む消化液はどれか。", "a": "胃液", "w": ["だ液", "胆汁", "うすい塩酸"], "ex": "胃液にはタンパク質を分解するペプシンが含まれます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "小腸の壁にあるひだと柔毛が多数あることの利点はどれか。", "a": "表面積が大きくなり、栄養分を効率よく吸収できる", "w": ["食物が早く通過できる", "消化液がたくさん出る", "細菌が入りにくくなる"], "ex": "小腸の内側の表面積が大きいほど、栄養分を吸収しやすくなります。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "血液の成分のうち、酸素を運ぶはたらきをするものはどれか。", "a": "赤血球", "w": ["白血球", "血小板", "血しょう"], "ex": "赤血球に含まれるヘモグロビンが酸素と結びつきます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "心臓から肺へ向かう血管を流れる血液を何というか。", "a": "静脈血", "w": ["動脈血", "リンパ液", "組織液"], "ex": "肺動脈には全身から戻ってきた酸素の少ない静脈血が流れます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "体内で不要になったアンモニアは、おもにどこで尿素に変えられるか。", "a": "肝臓", "w": ["腎臓", "小腸", "心臓"], "ex": "肝臓で有害なアンモニアが尿素に変えられ、腎臓でこしとられます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "熱いものにふれて思わず手を引っこめる反応を何というか。", "a": "反射", "w": ["感覚", "随意運動", "記憶"], "ex": "反射は脳を通らず、せきずいなどから命令が出るため速く反応できます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "刺激を受けとる器官で、光の刺激を受けとるものはどれか。", "a": "目（網膜）", "w": ["耳（うずまき管）", "鼻（嗅細胞）", "皮膚（感覚点）"], "ex": "光の刺激は目の網膜で受けとります。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "メンデルの実験で、純系の丸い種子（AA）としわのある種子（aa）をかけ合わせたとき、子（F₁）の種子はどうなるか。", "a": "すべて丸い種子（Aa）になる", "w": ["丸としわが1：1", "すべてしわのある種子になる", "丸としわが3：1"], "ex": "優性の法則。優性の形質だけが現れます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "生態系で、無機物から有機物をつくる生物はどれか。", "a": "生産者（植物など）", "w": ["消費者", "分解者", "捕食者"], "ex": "生産者は光合成で有機物をつくります。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "生態系で、動物の死がいやふんを無機物に分解する生物はどれか。", "a": "分解者（菌類・細菌類など）", "w": ["生産者", "一次消費者", "二次消費者"], "ex": "分解者は菌類や細菌類です。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "食物連鎖で、数量が最も多いのはどれか。", "a": "生産者", "w": ["一次消費者", "二次消費者", "高次消費者"], "ex": "ピラミッドの底辺ほど数量が多くなります。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "無性生殖の特徴として正しいものはどれか。", "a": "子は親と同じ遺伝子をもつ", "w": ["子は親と必ずちがう形質をもつ", "雌雄の生殖細胞が必要", "環境の変化に強くなりやすい"], "ex": "無性生殖では親のからだの一部から子ができるので、遺伝子は同じです。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "動物の体細胞分裂について正しいものはどれか。", "a": "分裂前に染色体が複製され、同じ数の染色体をもつ2個の細胞になる", "w": ["染色体の数が半分になる", "染色体の数が2倍になる", "核は分裂しない"], "ex": "体細胞分裂では染色体の数は変わりません。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "脊椎動物のうち、卵に殻があり陸上に産む動物はどれか。", "a": "は虫類", "w": ["両生類", "魚類", "哺乳類（カモノハシを除く）"], "ex": "は虫類・鳥類は陸上に殻のある卵を産みます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "植物の根のつくりで、水や養分を吸収する部分はどれか。", "a": "根毛", "w": ["道管", "師管", "形成層"], "ex": "根毛は根の先端付近にある細い毛です。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "植物の体内で、根から吸収した水が通る管はどれか。", "a": "道管", "w": ["師管", "気孔", "表皮"], "ex": "師管は葉でつくられた栄養分を運びます。"}, {"s": "sci", "u": "生物", "t": "mc", "q": "気孔から水蒸気が出ていくことを何というか。", "a": "蒸散", "w": ["光合成", "呼吸", "吸収"], "ex": "蒸散は主に葉の裏側の気孔で行われます。"}, {"s": "sci", "u": "地学", "t": "num", "q": "地震のP波は秒速6km、S波は秒速3kmで伝わる。初期微動継続時間が12秒だった地点の震源距離は何kmか。", "a": "72", "ex": "震源距離をdとすると d/3−d/6=12。d/6=12よりd=72km。"}, {"s": "sci", "u": "地学", "t": "num", "q": "気温20℃の空気1m³にふくまれる水蒸気量が8.65gのとき、湿度は何％か。（20℃の飽和水蒸気量は17.3g/m³）", "a": "50", "ex": "湿度(%)=水蒸気量÷飽和水蒸気量×100=8.65÷17.3×100=50%。"}, {"s": "sci", "u": "地学", "t": "num", "q": "気温30℃、湿度40％の空気1m³にふくまれる水蒸気量は何gか。（30℃の飽和水蒸気量は30.4g/m³）小数第2位を四捨五入して答えよ。", "a": "12.2", "ex": "水蒸気量=飽和水蒸気量×湿度=30.4×0.40=12.16≒12.2g。"}, {"s": "sci", "u": "地学", "t": "num", "q": "北緯35°の地点で、春分の日の太陽の南中高度は何度か。", "a": "55", "ex": "春分・秋分の南中高度は 90°−緯度=90−35=55°。"}, {"s": "sci", "u": "地学", "t": "num", "q": "地軸の傾きを23.4°とする。北緯35°の地点で、夏至の日の太陽の南中高度は何度か。", "a": "78.4", "ex": "夏至の南中高度は 90°−緯度＋23.4°=90−35+23.4=78.4°。"}, {"s": "sci", "u": "地学", "t": "num", "q": "北の空の星は、1時間に15°ずつ動いて見える。3時間では何度動くか。", "a": "45", "ex": "地球の自転は1時間に360÷24=15°。15×3=45°。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "地震のゆれの大きさ（強さ）を表すものはどれか。", "a": "震度", "w": ["マグニチュード", "震央距離", "初期微動継続時間"], "ex": "震度はある場所でのゆれの大きさ、マグニチュードは地震そのものの規模。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "地震で、はじめに小さなゆれを伝える波はどれか。", "a": "P波", "w": ["S波", "表面波", "津波"], "ex": "P波は速く伝わり初期微動を起こし、S波は主要動を起こします。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "日本列島付近で、海洋プレートが大陸プレートの下にしずみこむ場所にできる地形はどれか。", "a": "海溝", "w": ["海嶺", "三角州", "大陸棚"], "ex": "日本海溝や南海トラフがその例です。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "マグマのねばりけが強い火山の特徴として正しいものはどれか。", "a": "ドーム状の形で、噴火が激しい", "w": ["傾斜がゆるやかな形で、おだやかに噴火する", "溶岩が遠くまで流れる", "黒っぽい溶岩をふき出す"], "ex": "ねばりけが強いと白っぽい溶岩でドーム状になります（例：昭和新山）。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "深成岩に分類される岩石はどれか。", "a": "花こう岩", "w": ["玄武岩", "安山岩", "流紋岩"], "ex": "マグマが地下深くでゆっくり冷え固まった岩石。深成岩は花こう岩、せん緑岩、はんれい岩。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "地層の中から見つかる化石のうち、地層がたい積した年代を知る手がかりになるものを何というか。", "a": "示準化石", "w": ["示相化石", "標本化石", "生痕化石"], "ex": "三葉虫・アンモナイトなどは示準化石。サンゴは示相化石（あたたかく浅い海）。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "火山灰などが固まってできた堆積岩はどれか。", "a": "凝灰岩", "w": ["石灰岩", "砂岩", "チャート"], "ex": "火山灰・火山れきなどが固まった堆積岩。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "石灰岩にうすい塩酸をかけたとき起こる変化として正しいものはどれか。", "a": "二酸化炭素が発生する", "w": ["水素が発生する", "酸素が発生する", "変化しない"], "ex": "石灰岩の主成分は炭酸カルシウムです。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "寒冷前線が通過するときの天気の変化として最も適切なものはどれか。", "a": "せまい範囲に強い雨が短時間降り、通過後に気温が下がる", "w": ["広い範囲に弱い雨が長時間降り、通過後に気温が上がる", "雨は降らずに気温が上がる", "風がやみ、霧が出る"], "ex": "寒冷前線では積乱雲が発達します。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "温暖前線の特徴として正しいものはどれか。", "a": "暖気が寒気の上にゆるやかにはい上がる", "w": ["寒気が暖気の下にもぐりこむ", "前線の傾きが急である", "突風と雷雨を伴う"], "ex": "温暖前線では乱層雲が広がり、弱い雨が広い範囲に降ります。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "高気圧の中心付近で見られる空気の流れとして正しいものはどれか。", "a": "下降気流で、時計回りに風が吹き出す", "w": ["上昇気流で、反時計回りに風が吹きこむ", "上昇気流で、時計回りに風が吹き出す", "下降気流で、反時計回りに風が吹き込む"], "ex": "北半球では高気圧は時計回りに吹き出し、中心は下降気流で晴れやすい。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "日本の冬の天気に最も関係の深い気団はどれか。", "a": "シベリア気団", "w": ["小笠原気団", "オホーツク海気団", "揚子江気団"], "ex": "冬はシベリア気団から北西の季節風が吹き、日本海側に雪を降らせます。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "月が地球と太陽の間に入り、太陽をかくす現象を何というか。", "a": "日食", "w": ["月食", "満月", "新月の食"], "ex": "日食は新月のとき、月食は満月のときに起こります。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "金星について正しいものはどれか。", "a": "明け方の東の空か、夕方の西の空にしか見えない", "w": ["真夜中に南中する", "満ち欠けしない", "一年中同じ形に見える"], "ex": "金星は地球より内側を公転するため、真夜中には見えません。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "太陽系の惑星のうち、地球型惑星はどれか。", "a": "火星", "w": ["木星", "土星", "天王星"], "ex": "水星・金星・地球・火星が地球型惑星で、岩石でできています。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "太陽系で、太陽に最も近い惑星はどれか。", "a": "水星", "w": ["金星", "火星", "地球"], "ex": "太陽に近い順に、水・金・地・火・木・土・天・海。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "北極星の近くの星が、一日かけて北極星を中心に回転して見える向きはどれか。", "a": "反時計回り", "w": ["時計回り", "東から西へ直線的に動く", "動かない"], "ex": "北の空の星の日周運動は、地球の自転により反時計回りに見えます。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "季節によって太陽の南中高度が変わる主な原因はどれか。", "a": "地軸が公転面に垂直な方向に対して傾いたまま公転しているから", "w": ["地球と太陽の距離が大きく変わるから", "太陽が自転しているから", "月の引力が変化するから"], "ex": "地軸の傾きが季節の変化の原因です。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "天気記号「○」が表す天気はどれか。", "a": "快晴", "w": ["晴れ", "くもり", "雨"], "ex": "雲量が0〜1のとき快晴（○）、2〜8のとき晴れ（⦶）、9〜10のときくもり（◎）。"}, {"s": "sci", "u": "地学", "t": "mc", "q": "露点とは何か。", "a": "空気中の水蒸気が凝結し始める温度", "w": ["水が沸騰する温度", "気温と湿度が等しくなる温度", "空気が最も暖まる温度"], "ex": "露点より気温が下がると、水滴が現れます。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "日本の標準時子午線が通る経線として正しいものはどれか。", "a": "東経135度", "w": ["東経120度", "東経140度", "東経150度"], "ex": "兵庫県明石市を通る東経135度の経線が日本の標準時子午線です。"}, {"s": "soc", "u": "地理", "t": "num", "q": "日本（東経135度）が1月1日午前0時のとき、経度0度のイギリス（ロンドン）は12月31日の何時か。24時間制で数字のみ答えよ。", "a": "15", "ex": "経度15度で1時間の差。135÷15=9時間。日本が9時間進んでいるので、24−9=15時。"}, {"s": "soc", "u": "地理", "t": "num", "q": "2万5千分の1の地形図上で4cmの長さは、実際の距離では何mか。", "a": "1000", "ex": "4cm×25000=100000cm=1000m。"}, {"s": "soc", "u": "地理", "t": "num", "q": "5万分の1の地形図上で3cmの長さは、実際の距離では何kmか。", "a": "1.5", "ex": "3cm×50000=150000cm=1500m=1.5km。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "地形図で、等高線の間隔が狭いところはどのような土地か。", "a": "傾斜が急な土地", "w": ["傾斜がゆるやかな土地", "平らな土地", "海の底"], "ex": "等高線の間隔が狭いほど急傾斜、広いほどゆるやかです。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "地形図の地図記号「♨」が表すものはどれか。", "a": "温泉", "w": ["工場", "発電所", "神社"], "ex": "♨は温泉の地図記号です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "地形図の地図記号「文」が表すものはどれか。", "a": "小・中学校", "w": ["郵便局", "病院", "図書館"], "ex": "「文」は小・中学校、高等学校は「文」に丸を重ねた記号です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "六大陸のうち、最も面積が大きい大陸はどれか。", "a": "ユーラシア大陸", "w": ["アフリカ大陸", "北アメリカ大陸", "南アメリカ大陸"], "ex": "ユーラシア大陸が最大です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "三大洋のうち、最も面積が大きい海洋はどれか。", "a": "太平洋", "w": ["大西洋", "インド洋", "北極海"], "ex": "太平洋は地球の表面積のおよそ3分の1を占めます。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "本初子午線が通る都市として正しいものはどれか。", "a": "ロンドン", "w": ["パリ", "ニューヨーク", "東京"], "ex": "イギリスの旧グリニッジ天文台を通る経度0度の線です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "季節風（モンスーン）の影響を大きく受け、夏に多くの雨が降る地域はどれか。", "a": "東アジアから南アジア", "w": ["西アジア", "北アフリカ", "北ヨーロッパ"], "ex": "夏は海から陸へ、湿った季節風が吹きます。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "ヨーロッパの国々が加盟し、多くの国で共通通貨ユーロを使っている組織はどれか。", "a": "EU（ヨーロッパ連合）", "w": ["ASEAN", "APEC", "OPEC"], "ex": "EUは政治・経済の統合を進める組織です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "東南アジアの国々が経済や政治の協力を進める組織はどれか。", "a": "ASEAN", "w": ["EU", "NAFTA", "OPEC"], "ex": "ASEAN（東南アジア諸国連合）です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "ブラジルで、さとうきびを原料につくられ、自動車の燃料に使われるものはどれか。", "a": "バイオエタノール", "w": ["軽油", "ガソリン", "天然ガス"], "ex": "植物由来のバイオ燃料です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "アフリカで、特定の鉱産資源や農産物の輸出に頼る経済を何というか。", "a": "モノカルチャー経済", "w": ["プランテーション", "フェアトレード", "混合農業"], "ex": "特定の産物への依存は、価格変動の影響を受けやすい問題があります。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "アメリカ合衆国中西部などで行われている、広大な農地で大型機械を使う農業の特徴はどれか。", "a": "適地適作と大規模な企業的農業", "w": ["小規模な自給的農業", "焼畑農業", "遊牧"], "ex": "地域の気候や土壌に合った作物を大規模につくります。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "オーストラリアの先住民を何というか。", "a": "アボリジニ", "w": ["マオリ", "イヌイット", "ネイティブアメリカン"], "ex": "マオリはニュージーランドの先住民です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "日本で、冬に雪が多く降る日本海側の気候の主な原因はどれか。", "a": "北西の季節風が日本海の湿った空気を運ぶから", "w": ["南東の季節風が吹くから", "黒潮が流れるから", "台風が来るから"], "ex": "冬の北西季節風が山地にぶつかり、日本海側に雪を降らせます。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "讃岐平野（香川県）に、ため池が多い理由はどれか。", "a": "年間を通して降水量が少ないから", "w": ["台風が多いから", "雪が多いから", "火山灰地だから"], "ex": "瀬戸内の気候は雨が少なく、農業用水を確保するため池が発達しました。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "宮崎平野などで行われる、ビニールハウスなどを使って出荷時期を早める栽培方法を何というか。", "a": "促成栽培", "w": ["抑制栽培", "輪作", "二毛作"], "ex": "冬の暖かい気候を利用して野菜を早く出荷します。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "長野県や群馬県の高原で、夏のすずしい気候を利用して出荷時期を遅らせる栽培方法を何というか。", "a": "抑制栽培", "w": ["促成栽培", "二期作", "混合農業"], "ex": "高原野菜（キャベツなど）を夏に出荷します。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "日本の三大都市圏のうち、東京を中心とする東京圏にあたるものはどれか。", "a": "関東", "w": ["関西", "中京", "北九州"], "ex": "東京・横浜などを中心とする関東の都市圏です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "太平洋ベルトに工業地帯・地域が集中している理由として適切なものはどれか。", "a": "原料の輸入や製品の輸送に便利な臨海部に位置するから", "w": ["山間部に位置するから", "寒冷で電力が安いから", "鉄鉱石が多く産出されるから"], "ex": "海外から資源を輸入し、製品を輸送するのに港が近いのが利点です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "日本で、出荷額が最も大きい工業地帯（地域）として知られる中京工業地帯で特に盛んな工業はどれか。", "a": "自動車工業（機械工業）", "w": ["繊維工業", "製紙工業", "食料品工業"], "ex": "愛知県豊田市周辺を中心に自動車の生産が盛んです。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "工場が海外へ移転し、国内の産業が衰退することを何というか。", "a": "産業の空洞化", "w": ["地産地消", "過疎化", "環境アセスメント"], "ex": "国内の生産・雇用が減る現象です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "日本の発電について、東日本大震災以降に割合が高まった発電方法はどれか。", "a": "火力発電", "w": ["水力発電", "原子力発電", "地熱発電"], "ex": "原子力発電所の停止もあり、火力発電への依存が高まりました。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "農産物を、その地域で生産して、その地域で消費することを何というか。", "a": "地産地消", "w": ["産地直送", "輸入", "加工貿易"], "ex": "輸送距離を減らし、新鮮な食べ物を地元で食べる取り組みです。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "日本の人口ピラミッドの形が、少子高齢化により近づいている形はどれか。", "a": "つぼ型", "w": ["富士山型", "つりがね型", "星型"], "ex": "子どもの割合が低く、高齢者の割合が高い形です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "過疎地域で見られる問題として最も適切なものはどれか。", "a": "学校や病院などの生活に必要なサービスの維持が難しくなる", "w": ["交通渋滞が深刻になる", "住宅が不足する", "大気汚染が悪化する"], "ex": "人口が減ると、地域の機能が維持しにくくなります。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "リアス海岸の特徴として正しいものはどれか。", "a": "入り組んだ海岸線で、波がおだやかな湾が多い", "w": ["砂浜が続く直線的な海岸", "サンゴ礁が発達した海岸", "なだらかな砂丘が続く海岸"], "ex": "三陸海岸は代表例で、養殖に適します。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "津波などの被害予測や避難場所を示した地図として、自治体が作成・配布するものはどれか。", "a": "ハザードマップ", "w": ["ジオラマ", "マニフェスト", "パブリックコメント"], "ex": "災害の被害予測や避難場所を示した地図です。"}, {"s": "soc", "u": "地理", "t": "mc", "q": "日本最大の面積を持つ都道府県はどれか。", "a": "北海道", "w": ["岩手県", "長野県", "福島県"], "ex": "北海道は日本の国土の約5分の1を占めます。"}, {"s": "soc", "u": "地理", "t": "num", "q": "日本の都道府県の数はいくつか。", "a": "47", "ex": "1都（東京都）、1道（北海道）、2府（大阪府・京都府）、43県で、合計47。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "縄文時代の人々の暮らしで正しいものはどれか。", "a": "たて穴住居に住み、縄目の文様のある土器を使った", "w": ["稲作が広まり、青銅器を使った", "古墳をつくった", "漢字や仏教を伝えた"], "ex": "縄文時代は狩りや採集の生活で、土偶なども作られました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "弥生時代に、九州北部から全国に広まったものはどれか。", "a": "稲作", "w": ["古墳づくり", "貨幣の使用", "仏教"], "ex": "稲作が広まると、貧富の差やくにが生まれました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "邪馬台国の女王で、魏に使いを送ったとされる人物は誰か。", "a": "卑弥呼", "w": ["推古天皇", "持統天皇", "聖徳太子"], "ex": "『魏志』倭人伝に記されています。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "5世紀ごろにつくられた、日本最大級の前方後円墳が見られる場所はどれか。", "a": "大阪府（大仙古墳）", "w": ["奈良県の飛鳥", "島根県の出雲", "福岡県の大宰府"], "ex": "大仙古墳（仁徳天皇陵とも）は、世界遺産にも登録されています。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "聖徳太子（厩戸皇子）が、家柄にとらわれず能力のある人を役人に取り立てるために定めたものはどれか。", "a": "冠位十二階", "w": ["十七条の憲法", "班田収授法", "大宝律令"], "ex": "冠位十二階は603年、十七条の憲法は役人の心得です。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "645年、中大兄皇子や中臣鎌足らが蘇我氏を倒して始めた政治改革は何か。", "a": "大化の改新", "w": ["壬申の乱", "承久の乱", "保元の乱"], "ex": "公地公民など、天皇中心の国づくりを目指しました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "701年に制定された、律令の基本となる法律はどれか。", "a": "大宝律令", "w": ["御成敗式目", "武家諸法度", "十七条の憲法"], "ex": "唐の律令にならって制定されました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "710年に、唐の長安にならって都がつくられた場所はどれか。", "a": "平城京", "w": ["平安京", "藤原京", "難波宮"], "ex": "奈良に平城京がつくられ、奈良時代が始まります。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "聖武天皇が仏教の力で国を守るために、国ごとに建てさせたものはどれか。", "a": "国分寺", "w": ["法隆寺", "平等院", "金閣"], "ex": "都には東大寺と大仏がつくられました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "794年、桓武天皇が都を移した場所はどこか。", "a": "平安京", "w": ["平城京", "大宰府", "鎌倉"], "ex": "京都の平安京に都が移り、平安時代が始まります。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "894年に、菅原道真が停止を提案した使節はどれか。", "a": "遣唐使", "w": ["遣隋使", "朝鮮通信使", "遣明使"], "ex": "唐が衰えていたことなどが理由です。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "平安時代に、摂政・関白を出して政治の実権を握った一族はどれか。", "a": "藤原氏", "w": ["平氏", "源氏", "北条氏"], "ex": "藤原道長・頼通のころに全盛期を迎えました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "平安時代に生まれた、日本語の表記に使われた文字はどれか。", "a": "かな文字", "w": ["甲骨文字", "ハングル", "ローマ字"], "ex": "漢字をもとに、ひらがな・カタカナがつくられました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "『源氏物語』の作者は誰か。", "a": "紫式部", "w": ["清少納言", "与謝野晶子", "樋口一葉"], "ex": "清少納言は『枕草子』を書きました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "平氏を滅ぼし、鎌倉に幕府を開いた人物は誰か。", "a": "源頼朝", "w": ["源義経", "平清盛", "北条時宗"], "ex": "1185年ごろ、守護・地頭を置いて武家政治の基礎をつくりました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "鎌倉幕府で、将軍を補佐する役職として代々北条氏がついたものはどれか。", "a": "執権", "w": ["管領", "老中", "関白"], "ex": "執権の北条氏による政治が行われました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1221年、後鳥羽上皇が幕府を倒そうとして起こした戦いはどれか。", "a": "承久の乱", "w": ["保元の乱", "平治の乱", "応仁の乱"], "ex": "幕府側が勝利し、朝廷への監視が強まりました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1232年に、北条泰時が定めた、武士のための最初の法律はどれか。", "a": "御成敗式目", "w": ["大宝律令", "十七条の憲法", "武家諸法度"], "ex": "武士の慣習に基づく裁判の基準です。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "鎌倉時代に、元（モンゴル帝国）が日本に攻めてきた出来事を何というか。", "a": "元寇", "w": ["承久の乱", "倭寇", "応仁の乱"], "ex": "文永の役（1274）と弘安の役（1281）の2度です。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "室町幕府の初代将軍は誰か。", "a": "足利尊氏", "w": ["足利義満", "足利義政", "源頼朝"], "ex": "足利尊氏が京都に幕府を開きました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "3代将軍足利義満が行った貿易は何か。", "a": "日明貿易（勘合貿易）", "w": ["南蛮貿易", "朱印船貿易", "日宋貿易"], "ex": "倭寇と区別するために勘合という合い札を用いました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1467年に始まり、全国に広がって戦国時代のきっかけとなった戦乱はどれか。", "a": "応仁の乱", "w": ["承久の乱", "島原の乱", "壬申の乱"], "ex": "8代将軍足利義政のあとつぎ争いなどが背景です。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1543年、ポルトガル人が漂着して日本に伝えたものは何か。", "a": "鉄砲", "w": ["キリスト教", "火薬のみ", "地球儀"], "ex": "種子島に伝わり、戦国時代の戦い方を大きく変えました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1549年、日本にキリスト教を伝えた宣教師は誰か。", "a": "ザビエル", "w": ["コロンブス", "マゼラン", "ペリー"], "ex": "イエズス会のフランシスコ・ザビエルが鹿児島に来ました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "織田信長が行った、商工業の発展をうながすための政策はどれか。", "a": "楽市・楽座", "w": ["検地", "刀狩", "鎖国"], "ex": "市での税や座の特権をなくしました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "豊臣秀吉が行った、田畑の面積や収穫量を調べる政策はどれか。", "a": "太閤検地", "w": ["刀狩", "楽市・楽座", "地租改正"], "ex": "検地によって土地の耕作者を確定し、年貢を安定させました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1600年、徳川家康が勝利した、天下分け目の戦いはどれか。", "a": "関ヶ原の戦い", "w": ["長篠の戦い", "桶狭間の戦い", "壇ノ浦の戦い"], "ex": "1603年に江戸幕府を開きました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "江戸幕府が、大名を統制するために定めた法令はどれか。", "a": "武家諸法度", "w": ["御成敗式目", "大宝律令", "五箇条の御誓文"], "ex": "参勤交代は、3代将軍徳川家光のときに制度化されました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "江戸時代の鎖国中、長崎の出島でオランダと貿易した理由として適切なものはどれか。", "a": "キリスト教の布教を行わなかったから", "w": ["日本の特産物を高く買ったから", "幕府と親戚だったから", "最も近い国だったから"], "ex": "オランダは貿易のみが目的で布教を行いませんでした。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "江戸時代の三大改革のうち、8代将軍徳川吉宗が行ったものはどれか。", "a": "享保の改革", "w": ["寛政の改革", "天保の改革", "大政奉還"], "ex": "公事方御定書の制定や、目安箱の設置などが行われました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1853年に、浦賀に来航して日本に開国を求めたアメリカの使節は誰か。", "a": "ペリー", "w": ["ハリス", "ラクスマン", "ビッドル"], "ex": "翌年、日米和親条約が結ばれました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1858年に結ばれた日米修好通商条約の内容として正しいものはどれか。", "a": "領事裁判権を認め、関税自主権がなかった", "w": ["関税自主権を持ち、領事裁判権はなかった", "開港地は下田と函館のみ", "貿易は禁止された"], "ex": "日本にとって不平等な条約でした。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1868年に新政府が出した、新しい政治の基本方針はどれか。", "a": "五箇条の御誓文", "w": ["大日本帝国憲法", "教育勅語", "日本国憲法"], "ex": "「広く会議を興し、万機公論に決すべし」などを内容とします。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "明治政府が、藩を廃止して県を置いた改革を何というか。", "a": "廃藩置県", "w": ["版籍奉還", "地租改正", "徴兵令"], "ex": "1871年。中央集権の体制を整えました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1873年に始まった、土地の価格に応じて現金で税を納めさせる改革はどれか。", "a": "地租改正", "w": ["廃藩置県", "学制", "殖産興業"], "ex": "税収が安定し、政府の財政の基礎が固まりました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "明治政府が、近代産業を育てるために進めた政策はどれか。", "a": "殖産興業", "w": ["富国強兵", "文明開化", "自由民権運動"], "ex": "官営工場（富岡製糸場など）をつくりました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1889年に発布された憲法はどれか。", "a": "大日本帝国憲法", "w": ["日本国憲法", "十七条の憲法", "五箇条の御誓文"], "ex": "天皇が国の元首として統治する、とされていました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "日清戦争（1894年）の結果、結ばれた条約はどれか。", "a": "下関条約", "w": ["ポーツマス条約", "ベルサイユ条約", "日米和親条約"], "ex": "日本は清から賠償金や遼東半島などを得ました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "日露戦争の講和条約はどれか。", "a": "ポーツマス条約", "w": ["下関条約", "ベルサイユ条約", "サンフランシスコ平和条約"], "ex": "賠償金は得られず、国民の不満が高まりました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1914年に始まった第一次世界大戦のあと、1919年に結ばれた講和条約はどれか。", "a": "ベルサイユ条約", "w": ["ポツダム宣言", "下関条約", "ポーツマス条約"], "ex": "ドイツに多額の賠償金が課されました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1925年に、納税額に関係なく25歳以上の男子に選挙権を与えた法律はどれか。", "a": "普通選挙法", "w": ["治安維持法", "国家総動員法", "大日本帝国憲法"], "ex": "同じ年に治安維持法も制定されました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1937年に始まった、日本と中国との全面戦争のきっかけになった事件はどれか。", "a": "盧溝橋事件", "w": ["柳条湖事件", "五・一五事件", "二・二六事件"], "ex": "日中戦争の始まりです。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1945年8月、日本が受け入れた、連合国が日本に降伏を求めた宣言はどれか。", "a": "ポツダム宣言", "w": ["カイロ宣言", "ヤルタ協定", "サンフランシスコ平和条約"], "ex": "広島・長崎への原子爆弾投下やソ連の参戦ののち受諾しました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "戦後の民主化政策として、地主の土地を安く買い上げ小作人に売り渡した改革はどれか。", "a": "農地改革", "w": ["財閥解体", "地租改正", "殖産興業"], "ex": "自作農が増えました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1951年に結ばれ、翌年の発効で日本が独立を回復した条約はどれか。", "a": "サンフランシスコ平和条約", "w": ["日米安全保障条約", "日ソ共同宣言", "日韓基本条約"], "ex": "同時に日米安全保障条約も結ばれました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1956年、日本が国際連合への加盟を果たしたきっかけとなった宣言はどれか。", "a": "日ソ共同宣言", "w": ["日中共同声明", "日米安保条約", "日韓基本条約"], "ex": "ソ連との国交が回復し、国連加盟が実現しました。"}, {"s": "soc", "u": "歴史", "t": "mc", "q": "1960年代、日本が急速な経済成長をした時期を何というか。", "a": "高度経済成長", "w": ["バブル経済", "世界恐慌", "戦後恐慌"], "ex": "1964年の東京オリンピックなども開かれました。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本国憲法の三つの基本原理として正しいものはどれか。", "a": "国民主権・基本的人権の尊重・平和主義", "w": ["三権分立・民主主義・資本主義", "国民主権・天皇主権・平和主義", "基本的人権・議会主義・軍国主義"], "ex": "この三つが日本国憲法の柱です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本国憲法が公布された日と施行された日の組み合わせとして正しいものはどれか。", "a": "公布は1946年11月3日、施行は1947年5月3日", "w": ["公布は1946年5月3日、施行は1947年11月3日", "公布は1945年8月15日、施行は1946年5月3日", "公布も施行も1947年5月3日"], "ex": "11月3日は文化の日、5月3日は憲法記念日です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本国憲法で、天皇の地位は何と規定されているか。", "a": "日本国と日本国民統合の象徴", "w": ["国の元首", "国民の代表", "神の子孫"], "ex": "天皇は国事行為のみを行います。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本国憲法第9条が定めていることとして正しいものはどれか。", "a": "戦争の放棄、戦力の不保持", "w": ["国民の三大義務", "三権分立", "男女平等"], "ex": "平和主義を示す条文です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本国憲法に定められている国民の三大義務はどれか。", "a": "子どもに普通教育を受けさせる義務・勤労の義務・納税の義務", "w": ["兵役・勤労・納税", "教育・投票・納税", "勤労・投票・兵役"], "ex": "「教育を受ける権利」は権利、「受けさせる義務」が義務です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本国憲法が保障する権利のうち、「健康で文化的な最低限度の生活を営む権利」は何か。", "a": "生存権", "w": ["自由権", "参政権", "請求権"], "ex": "憲法第25条に定められた社会権の一つです。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本国憲法が保障する権利のうち、選挙権や被選挙権にあたるものはどれか。", "a": "参政権", "w": ["自由権", "社会権", "請求権"], "ex": "政治に参加する権利です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "次のうち、社会権にあたるものはどれか。", "a": "教育を受ける権利", "w": ["信教の自由", "言論の自由", "裁判を受ける権利"], "ex": "社会権には、生存権、教育を受ける権利、勤労の権利、労働基本権があります。"}, {"s": "soc", "u": "公民", "t": "num", "q": "衆議院議員の被選挙権は満何歳以上か。", "a": "25", "ex": "衆議院議員は満25歳以上、参議院議員は満30歳以上です。"}, {"s": "soc", "u": "公民", "t": "num", "q": "参議院議員の被選挙権は満何歳以上か。", "a": "30", "ex": "参議院議員は満30歳以上です。"}, {"s": "soc", "u": "公民", "t": "num", "q": "参議院議員の任期は何年か。", "a": "6", "ex": "参議院議員の任期は6年で、3年ごとに半数が改選されます。"}, {"s": "soc", "u": "公民", "t": "num", "q": "衆議院議員の任期は何年か。", "a": "4", "ex": "衆議院議員の任期は4年で、解散があります。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "国会が「国権の最高機関」であり、「唯一の立法機関」とされる理由として正しいものはどれか。", "a": "主権者である国民が選挙で選んだ代表者で構成されているから", "w": ["天皇が任命するから", "内閣が指名するから", "裁判所が構成を決めるから"], "ex": "国会は国民の代表機関です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "衆議院の優越が認められている理由として適切なものはどれか。", "a": "任期が短く解散もあり、国民の意見をより反映しやすいから", "w": ["議員数が少ないから", "先に生まれたから", "天皇が決めたから"], "ex": "衆議院は任期が短く、解散があるため民意を反映しやすいと考えられます。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "内閣総理大臣は、どのように選ばれるか。", "a": "国会議員の中から国会が指名する", "w": ["国民が直接選挙で選ぶ", "天皇が選ぶ", "最高裁判所が指名する"], "ex": "国会が指名し、天皇が任命します。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "内閣の仕事として正しいものはどれか。", "a": "法律にもとづいて政治を行い、予算案をつくる", "w": ["法律をつくる", "裁判を行う", "憲法を改正する"], "ex": "立法は国会、司法は裁判所の仕事です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "衆議院で内閣不信任決議が可決された場合、内閣がとる対応として正しいものはどれか。", "a": "10日以内に衆議院を解散するか、総辞職する", "w": ["参議院を解散する", "最高裁判所に判断を求める", "ただちに総選挙を行う"], "ex": "憲法第69条の定めです。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本の裁判で、同一の事件について3回まで裁判を受けられる制度を何というか。", "a": "三審制", "w": ["二審制", "陪審制", "裁判員制度"], "ex": "慎重な裁判を行って、誤りを防ぐための制度です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "裁判所が、法律や命令が憲法に違反していないかを審査する権限を何というか。", "a": "違憲審査権（法令審査権）", "w": ["弾劾裁判", "国政調査権", "不信任決議"], "ex": "最高裁判所は「憲法の番人」と呼ばれます。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "権力が一か所に集中しないよう、国の権力を立法・行政・司法に分ける仕組みを何というか。", "a": "三権分立", "w": ["二院制", "地方自治", "議院内閣制"], "ex": "互いに抑制し合うことで、権力の濫用を防ぎます。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "地方自治が「民主主義の学校」と呼ばれる理由はどれか。", "a": "住民が身近な政治に参加し、民主主義を学べるから", "w": ["国の仕事を全て代行するから", "国の政党が中心だから", "学校の授業で扱うから"], "ex": "イギリスのブライスの言葉です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "住民が条例の制定や改廃を求める直接請求に必要な署名数は、有権者の何分の1以上か。", "a": "50分の1", "w": ["3分の1", "10分の1", "100分の1"], "ex": "条例の制定・改廃の請求は50分の1以上です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "市場で、需要量が供給量を上回っているときの価格の動きとして正しいものはどれか。", "a": "上がる", "w": ["下がる", "変わらない", "ゼロになる"], "ex": "需要が供給より多いと、価格は上がる傾向があります。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "独占や寡占を防ぎ、公正な競争をうながすために定められた法律はどれか。", "a": "独占禁止法", "w": ["消費者契約法", "製造物責任法", "労働基準法"], "ex": "公正取引委員会が運用します。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "日本銀行が、景気が過熱しているときに行う金融政策はどれか。", "a": "国債などを売り、通貨量を減らす", "w": ["国債などを買い、通貨量を増やす", "銀行にお金を貸し出す", "政府の税率を下げる"], "ex": "売りオペレーションで、市場のお金を吸収します。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "円高の影響として正しいものはどれか。", "a": "輸入品の価格が下がりやすい", "w": ["輸出に有利になる", "海外旅行が不利になる", "外国人観光客が増える"], "ex": "円の価値が高くなると、輸入品を安く買えます。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "労働者が団結して労働組合をつくる権利を何というか。", "a": "団結権", "w": ["団体交渉権", "団体行動権", "勤労の権利"], "ex": "労働三権は、団結権・団体交渉権・団体行動権です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "政府が、税金を集めて道路・公園・学校などの公共サービスを行うことの役割を何というか。", "a": "財政", "w": ["金融", "貿易", "景気循環"], "ex": "政府の収入と支出を財政といいます。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "税金のうち、所得が多い人ほど高い税率が適用される仕組みを何というか。", "a": "累進課税", "w": ["比例課税", "消費課税", "間接税"], "ex": "所得の格差を和らげる効果があります。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "次のうち、直接税にあたるものはどれか。", "a": "所得税", "w": ["消費税", "関税", "酒税"], "ex": "税金を納める人と負担する人が同じ税を直接税といいます。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "国際連合の主要機関のうち、世界の平和と安全の維持に責任を持つ機関はどれか。", "a": "安全保障理事会", "w": ["総会", "経済社会理事会", "国際司法裁判所"], "ex": "常任理事国（米・英・仏・露・中）は拒否権を持ちます。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "国連の安全保障理事会の常任理事国が持つ特別な権限はどれか。", "a": "拒否権", "w": ["解散権", "指名権", "違憲審査権"], "ex": "1か国でも反対すると、重要な決議が成立しません。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "環境保護のために、2015年に採択された、温室効果ガス削減の国際的な枠組みはどれか。", "a": "パリ協定", "w": ["京都議定書", "モントリオール議定書", "ラムサール条約"], "ex": "世界の平均気温の上昇を、産業革命前と比べて2℃未満に抑え、1.5℃に抑える努力も追求します。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "「持続可能な開発目標」の略称はどれか。", "a": "SDGs", "w": ["ODA", "NGO", "PKO"], "ex": "2030年までに達成を目指す17の目標です。"}, {"s": "soc", "u": "公民", "t": "mc", "q": "発展途上国と先進国の経済格差の問題を何というか。", "a": "南北問題", "w": ["東西問題", "貿易摩擦", "産業の空洞化"], "ex": "南半球に途上国が多いことからこう呼びます。"}];
+var PASS={"p1": "Last Sunday, our class cleaned the park near our school. At first, I did not want to join because I was tired from basketball practice. But when I saw many people working together, I changed my mind. An old man smiled at us and said, \"Thank you. The park is so beautiful now.\" His words made me happy. I learned that small actions can make people happy. Next month, I will join the cleaning again with my friends.", "p2": "Hi Kenta,\nThank you for your e-mail. I'm glad to hear that you will visit Canada this summer. I live in Vancouver with my parents and my little sister. We have a small dog named Max. He likes to run on the beach every morning. Do you like dogs? If you want, you can walk with him. I'm also planning a barbecue party on August 10. My friends want to meet you. Please tell me what food you can't eat.\nSee you soon!\nEmily", "p3": "In my town, many shops stopped giving free plastic bags two years ago. Now, people bring their own bags when they go shopping. My mother has a cloth bag that my grandmother made. At first, some people felt it was a trouble to remember their bags. However, they got used to it soon. The streets are cleaner now, and I can see fewer bags in the river. I think we can protect the environment if we change our daily habits a little.", "p4": "I started playing the piano when I was five. I practiced every day, but I stopped when I entered junior high school because I was busy with the tennis club. Last winter, my grandfather got sick and stayed in the hospital. I played the piano for him in the lobby of the hospital. He listened carefully and said, \"Your music gives me power.\" After that day, I started to practice again. Now I play the piano for him at his home every weekend.", "p5": "Summer English Camp\nDate: July 25 - 27\nPlace: Green Hill Camp Site\nYou can enjoy cooking, games, and talking with students from other countries.\nFee: 12,000 yen (food and bus are included)\nYou need to bring a towel and a water bottle.\nIf you want to join, please call Ms. Brown by July 10. Only 30 students can join.", "p6": "Some people say that students should not bring smartphones to school. I don't think so. Smartphones are useful for studying. For example, I use a dictionary app when I find new words, and I can check train times when there is a problem on the way home. Of course, we should not use them during classes. If we follow the rules, smartphones will help us a lot.", "k1": "今は昔、竹取の翁といふものありけり。野山にまじりて竹を取りつつ、よろづのことに使ひけり。名をば、さぬきの造となむいひける。その竹の中に、もと光る竹なむ一筋ありける。あやしがりて、寄りて見るに、筒の中光りたり。それを見れば、三寸ばかりなる人、いとうつくしうてゐたり。\n（『竹取物語』より）\n〔注〕翁＝おじいさん　よろづ＝いろいろ　寸＝長さの単位。一寸は約3cm", "k2": "春は、あけぼの。やうやう白くなりゆく山ぎは、少しあかりて、紫だちたる雲の細くたなびきたる。\n夏は、夜。月のころはさらなり、やみもなほ、蛍の多く飛びちがひたる。また、ただ一つ二つなど、ほのかにうち光りて行くもをかし。雨など降るもをかし。\n（『枕草子』より）\n〔注〕あけぼの＝夜明け　山ぎは＝山の稜線のあたり　さらなり＝言うまでもない　やみ＝月の出ていない闇夜", "k3": "祇園精舎の鐘の声、諸行無常の響きあり。沙羅双樹の花の色、盛者必衰の理をあらはす。おごれる人も久しからず、ただ春の夜の夢のごとし。たけき者もつひには滅びぬ、ひとへに風の前の塵に同じ。\n（『平家物語』より）\n〔注〕諸行無常＝この世のものはすべて移り変わるということ　盛者必衰＝栄えている者もいつか必ず衰えるということ　理＝道理　たけき者＝勢いの強い者", "k4": "つれづれなるままに、日暮らし、硯にむかひて、心にうつりゆくよしなしごとを、そこはかとなく書きつくれば、あやしうこそものぐるほしけれ。\n（『徒然草』序段より）\n〔注〕つれづれ＝することがなく退屈なこと　日暮らし＝一日中　硯＝墨をする道具　よしなしごと＝とりとめのないこと　そこはかとなく＝とりとめもなく　ものぐるほし＝気が変になりそうだ", "j1": "辞書を引く手間を省いてくれる翻訳アプリは、確かに便利だ。しかし、便利であることと、身につくことは別である。自分で言葉の意味を考え、いくつかの候補から選ぶ過程にこそ、理解を深める力が働く。答えをすぐに手に入れられる環境では、その過程が省かれがちになる。だから、道具に頼る場面と、自分の頭を使う場面を意識して使い分けることが大切だ。", "j2": "海の水は、同じ日差しを受けても、陸の地面にくらべて温まりにくい。一方で、一度温まると冷めにくい。この性質のため、昼間は海より陸のほうが先に暖かくなる。暖かい空気は軽いので上昇し、そこへ海から冷たい風が吹き込む。これが海風である。夜になると陸は先に冷え、風の向きは逆になる。", "j3": "翔太は、決勝戦のベンチで膝を抱えていた。三年間ともに練習した仲間が、あと一点を守ろうとグラウンドで声を張り上げている。自分は一度もレギュラーになれなかった。それでも、タオルを握る手に自然と力がこもった。「頼む、守りきってくれ。」声にならない声が、胸の中で何度も響いた。", "j4": "祖母の家の台所には、いつも同じ古い鍋がある。持ち手は少し欠け、底は黒ずんでいる。新しい鍋を買えば便利だと言うと、祖母は笑って首を振った。「この鍋はね、お前のお父さんが小さい頃から、毎年の正月に雑煮を作ってきたんだよ。」私は黙って鍋を見つめた。ただの道具だったそれが、急に家族の時間を抱えた存在に見えてきた。"};
+function catOf(q){
+  if(q.s==='jpn') return ({'漢字読み':'K','漢字書き':'K','語句':'V','文法':'V','古文':'F','現代文':'M'})[q.u];
+  if(q.s==='sci'||q.s==='soc') return q.u;
+  if(q.s==='eng') return ({'リスニング':'L','長文':'R','会話':'C'})[q.u]||'G';
+  if(q.u==='関数') return 'm3'; if(q.u==='図形') return 'm4';
+  if(q.u==='確率・データ'||q.wp) return 'm2'; return 'm1';
+}
+var ALL=[], BYID={}, cnt={eng:0,math:0,jpn:0,sci:0,soc:0};
+SUBJ.forEach(function(s){ RAW[s].items.forEach(function(r,i){ ALL.push({id:s+i,s:s,u:r[0],q:r[1],a:r[2],w:r[3],ex:r[4],t:'mc'}); }); });
+NEWQ.forEach(function(r){ var o={}; for(var k in r) o[k]=r[k]; o.id=IDP[r.s]+(cnt[r.s]++); ALL.push(o); });
+ALL.forEach(function(q){ q.cat=catOf(q); BYID[q.id]=q; });
+var ttsOK=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+
+var MOCK={
+ math:{name:'数学',secs:[
+  {t:'大問1　計算・方程式・小問',cat:'m1',n:10,pts:4},
+  {t:'大問2　確率・データ・文章題',cat:'m2',n:4,pts:5},
+  {t:'大問3　関数',cat:'m3',n:4,pts:5},
+  {t:'大問4　図形',cat:'m4',n:4,pts:5}]},
+ jpn:{name:'国語',secs:[
+  {t:'大問1　漢字の読み書き',cat:'K',n:10,pts:2},
+  {t:'大問2　語句・文法',cat:'V',n:5,pts:4},
+  {t:'大問3　古文',cat:'F',n:4,pts:5,passages:1,per:4},
+  {t:'大問4　現代文',cat:'M',n:8,pts:5,passages:2,per:4}]},
+ sci:{name:'理科',secs:[
+  {t:'大問1　物理',cat:'物理',n:5,pts:5},
+  {t:'大問2　化学',cat:'化学',n:5,pts:5},
+  {t:'大問3　生物',cat:'生物',n:5,pts:5},
+  {t:'大問4　地学',cat:'地学',n:5,pts:5}]},
+ soc:{name:'社会',secs:[
+  {t:'大問1　地理',cat:'地理',n:8,pts:4},
+  {t:'大問2　歴史',cat:'歴史',n:8,pts:4},
+  {t:'大問3　公民',cat:'公民',n:9,pts:4}]},
+ eng:{name:'英語',secs:[
+  {t:'大問1　リスニング',cat:'L',n:8,pts:3},
+  {t:'大問2　語彙・文法',cat:'G',n:10,pts:3},
+  {t:'大問3　会話文',cat:'C',n:4,pts:4},
+  {t:'大問4　長文読解',cat:'R',n:6,pts:5,passages:2,per:3}]}
+};
+var MOCK_SEC=50*60;
+
+/* ===== 保存 ===== */
+var S=load();
+function load(){ try{ var r=localStorage.getItem(KEY); if(r){ var o=JSON.parse(r); if(o&&o.log){ o.mocks=o.mocks||[]; o.rank=o.rank||null; return o; } } }catch(e){} return {log:[],goal:10,mocks:[],rank:null}; }
+function save(){ try{ if(S.log.length>6000) S.log=S.log.slice(-6000); localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function saveMock(){ var m=st8.mock; if(!m) return; try{ localStorage.setItem(MKEY,JSON.stringify({s:m.s,ids:m.ids,secs:m.secs,opts:m.opts,ans:m.ans,i:m.i,plays:m.plays,endAt:m.endAt,startAt:m.startAt})); }catch(e){} }
+function loadMock(){ try{ var r=localStorage.getItem(MKEY); if(r){ var o=JSON.parse(r); if(o&&o.ids&&o.endAt) return o; } }catch(e){} return null; }
+function clearMock(){ try{ localStorage.removeItem(MKEY); }catch(e){} }
+function dkey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function stats(){ var m={}; S.log.forEach(function(e){ var o=m[e.id]||(m[e.id]={n:0,c:0,last:1}); o.n++; o.c+=e.ok; o.last=e.ok; }); return m; }
+function esc(t){ return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function dispA(a){ return esc(String(a).replace(/(^|[^0-9A-Za-z)])-(?=\d)/g,'$1−')); }
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function pct(c,n){ return n? Math.round(c/n*100):0; }
+function todayCount(){ var k=dkey(new Date()); return S.log.filter(function(e){return e.d===k;}).length; }
+function streak(){
+  var days={}; S.log.forEach(function(e){days[e.d]=1;});
+  var d=new Date(); if(!days[dkey(d)]) d.setDate(d.getDate()-1);
+  var n=0; while(days[dkey(d)]){ n++; d.setDate(d.getDate()-1); } return n;
+}
+function wrongList(){ var st=stats(); return ALL.filter(function(q){ return st[q.id] && st[q.id].last===0; }); }
+function mmss(sec){ sec=Math.max(0,sec); return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0'); }
+
+/* ===== 数値入力の判定 ===== */
+function parseN(s){
+  s=String(s).trim().replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}).replace(/．/g,'.').replace(/／/g,'/');
+  s=s.replace(/[−ー―‐–]/g,'-').replace(/\s+/g,'').replace(/^[a-zA-Z]+=/,'').replace(/[^0-9\/.\-]+$/,'');
+  return s;
+}
+function numVal(s){
+  var m=/^(-?)(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?$/.exec(s); if(!m) return null;
+  var v=parseFloat(m[2]); if(m[3]){ var d=parseFloat(m[3]); if(!d) return null; v=v/d; }
+  return m[1]?-v:v;
+}
+function checkNum(q,input){
+  var a=parseN(input), b=parseN(q.a), x=numVal(a), y=numVal(b);
+  if(x!==null&&y!==null) return Math.abs(x-y)<1e-6;
+  return a===b;
+}
+function isRight(q,given){ if(given===null||given===undefined||given==='') return false; return q.t==='num'? checkNum(q,given): given===q.a; }
+
+/* ===== 状態 ===== */
+var st8={tab:'home',mode:null,setup:{s:'eng',u:'all'},quiz:null,confirmReset:false,pad:[],mock:null,mockS:'math',confirmSubmit:false,mres:null,tick:null};
+function buildSet(pool,n){
+  var st=stats(), wr=[],fr=[],rest=[];
+  pool.forEach(function(q){ var o=st[q.id]; if(!o) fr.push(q); else if(o.last===0) wr.push(q); else rest.push(q); });
+  return shuffle(shuffle(wr).concat(shuffle(fr),shuffle(rest)).slice(0,n));
+}
+function startQuiz(items){
+  st8.quiz={items:items,i:0,ok:0,miss:[],given:null,right:null,opts:null};
+  prepOpts(); st8.mode='quiz'; render(); window.scrollTo(0,0);
+}
+function prepOpts(){ var z=st8.quiz, q=z.items[z.i]; z.opts=q.t==='mc'?shuffle([q.a].concat(q.w)):null; z.given=null; z.right=null; st8.pad=[]; }
+
+/* ===== メモ用紙（手書き） ===== */
+function padRedraw(){
+  var cv=document.getElementById('pad'); if(!cv) return;
+  var dpr=window.devicePixelRatio||1, w=cv.clientWidth, h=cv.clientHeight;
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); }
+  var c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,w,h);
+  c.strokeStyle=getComputedStyle(cv).color; c.lineWidth=2.6; c.lineCap='round'; c.lineJoin='round';
+  st8.pad.forEach(function(s){
+    c.beginPath();
+    s.forEach(function(p,i){ var x=p[0]*w, y=p[1]; if(i) c.lineTo(x,y); else c.moveTo(x,y); });
+    if(s.length===1) c.lineTo(s[0][0]*w+0.1,s[0][1]);
+    c.stroke();
+  });
+}
+function padInit(){
+  var cv=document.getElementById('pad'); if(!cv) return;
+  padRedraw();
+  var cur=null;
+  function pt(e){ var r=cv.getBoundingClientRect(); return [(e.clientX-r.left)/r.width, e.clientY-r.top]; }
+  cv.addEventListener('pointerdown',function(e){ e.preventDefault(); try{cv.setPointerCapture(e.pointerId);}catch(x){} cur=[pt(e)]; st8.pad.push(cur); padRedraw(); });
+  cv.addEventListener('pointermove',function(e){ if(!cur) return; e.preventDefault(); cur.push(pt(e)); padRedraw(); });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(n){ cv.addEventListener(n,function(){ cur=null; }); });
+}
+window.addEventListener('resize',padRedraw);
+function padHtml(){
+  return '<section class="pad"><div class="tools"><span class="tag grow">メモ用紙（指やペンで書けます）</span>'+
+  '<button class="chip" data-act="padundo">ひとつ戻す</button><button class="chip" data-act="padclear">全部消す</button></div>'+
+  '<div class="sheet"><canvas id="pad" aria-label="手書きのメモ用紙"></canvas></div></section>';
+}
+
+/* ===== 音声（リスニング） ===== */
+function playAudio(q){
+  if(!ttsOK) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  var voices=[]; try{ voices=speechSynthesis.getVoices().filter(function(v){return /^en/i.test(v.lang);}); }catch(e){}
+  var st=document.getElementById('audst'); if(st) st.textContent='再生中…';
+  var last=null;
+  q.au.forEach(function(l){
+    var u=new SpeechSynthesisUtterance(l[1]); u.lang='en-US'; u.rate=0.9; u.pitch=(l[0]==='A')?1.1:0.85;
+    if(voices.length) u.voice=voices[(l[0]==='B'&&voices.length>1)?1:0];
+    speechSynthesis.speak(u); last=u;
+  });
+  if(last){ last.onend=last.onerror=function(){ var s2=document.getElementById('audst'); if(s2) s2.textContent=''; }; }
+}
+function scriptHtml(q){ return '<p class="ex" style="margin:8px 0 0;font-size:14px">放送文：'+q.au.map(function(l){return esc(l[0]+': '+l[1]);}).join('<br>')+'</p>'; }
+
+/* ===== 共通の問題表示 ===== */
+function keypadHtml(last){
+  var k=function(v,l,c){ return '<button class="'+(c||'')+'" data-act="key" data-v="'+v+'">'+l+'</button>'; };
+  return '<div class="keypad">'+k('7','7')+k('8','8')+k('9','9')+k('bs','⌫','sm')+k('4','4')+k('5','5')+k('6','6')+k('-','−')+
+    k('1','1')+k('2','2')+k('3','3')+k('/','/')+k('0','0')+k('.','.')+k('clr','クリア','sm')+last+'</div>';
+}
+function qHead(q,mock){
+  var h='';
+  if(q.pid) h+='<section class="card"><span class="tag">'+(q.s==='eng'?'英文':q.u==='古文'?'古文':'本文')+'</span><p class="passage" style="margin-top:6px">'+esc(PASS[q.pid])+'</p></section>';
+  if(q.au){
+    if(!ttsOK) h+='<section class="card stack"><div class="notice">この端末では音声を再生できないため、放送文を表示します。</div>'+scriptHtml(q)+'</section>';
+    else{
+      var left=mock? Math.max(0,2-((st8.mock.plays[q.id])||0)) : null;
+      h+='<section class="card aud"><button class="btn" data-act="play" data-v="'+q.id+'" '+(mock&&left===0?'disabled':'')+'>▶ 音声を聞く</button><span class="sub" id="audst"></span>'+
+        (mock?'<span class="sub num">あと '+left+' 回</span>':'')+'</section>';
+    }
+  }
+  h+='<section class="card qcard"><span class="tag">'+RAW[q.s].name+'　'+esc(q.u)+'</span><p class="qtext">'+esc(q.q)+'</p></section>';
+  return h;
+}
+
+/* ===== 画面 ===== */
+var HIDE_TABS={quiz:1,result:1,mock:1,mockintro:1,mockresult:1};
+function render(){
+  var app=document.getElementById('app'), tabs=document.getElementById('tabs'), h='';
+  tabs.hidden=!!HIDE_TABS[st8.mode];
+  var m=st8.mode;
+  if(m==='quiz') h=vQuiz(); else if(m==='result') h=vResult(); else if(m==='setup') h=vSetup();
+  else if(m==='mockintro') h=vMockIntro(); else if(m==='mock') h=vMock(); else if(m==='mockresult') h=vMockResult();
+  else if(st8.tab==='home') h=vHome(); else if(st8.tab==='review') h=vReview(); else if(st8.tab==='rank'&&RANK_URL) h=vRank(); else h=vRecords();
+  app.innerHTML=h; padInit(); document.getElementById('tabrank').hidden=!RANK_URL;
+  var cur=st8.mode?null:st8.tab;
+  document.querySelectorAll('.tab').forEach(function(b){ if(b.dataset.v===cur) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  var wn=wrongList().length; document.getElementById('rvbadge').innerHTML=wn?'<span class="badge">'+wn+'</span>':'';
+}
+function vHome(){
+  var t=todayCount(), g=S.goal||10, sk=streak(), st=stats();
+  var cards=SUBJ.map(function(s){
+    var qs=ALL.filter(function(q){return q.s===s;}), n=0,c=0,seen=0;
+    qs.forEach(function(q){ var o=st[q.id]; if(o){seen++;n+=o.n;c+=o.c;} });
+    return '<button class="subj" data-act="subj" data-v="'+s+'"><span class="name">'+RAW[s].name+'</span>'+
+      '<div class="bar blue"><i style="width:'+Math.round(seen/qs.length*100)+'%"></i></div>'+
+      '<span class="pct">挑戦 '+seen+'/'+qs.length+'問　正答率 '+(n?pct(c,n)+'%':'―')+'</span></button>';
+  }).join('');
+  var sm=loadMock(), resume='';
+  if(sm){
+    var rem=Math.round((sm.endAt-Date.now())/1000);
+    resume='<section class="card stack"><span class="tag">中断中の模擬テスト（'+MOCK[sm.s].name+'）</span><p style="margin:0">'+(rem>0?'残り '+mmss(rem)+' です。続きから再開できます。':'制限時間が過ぎています。採点して結果を見られます。')+'</p>'+
+      '<div class="row"><button class="btn grow" data-act="mresume">'+(rem>0?'再開する':'採点する')+'</button><button class="btn ghost" data-act="mdiscard">破棄</button></div></section>';
+  }
+  return '<header><h1><span class="mark">受験ドリル</span></h1><p class="sub">高校受験の5教科を練習します。</p></header>'+resume+
+  '<section class="card stack"><div class="row between"><span class="tag">今日の学習</span><span class="tag">連続 <span class="num">'+sk+'</span> 日</span></div>'+
+  '<div class="row" style="align-items:baseline"><span class="big">'+t+'</span><span class="num sub">/ '+g+' 問</span></div>'+
+  '<div class="bar"><i style="width:'+Math.min(100,Math.round(t/g*100))+'%"></i></div>'+
+  '<p class="sub">'+(t>=g?'今日の目標を達成しました。':'あと '+(g-t)+' 問で今日の目標です。')+'</p></section>'+
+  rankCard()+'<h2>教科をえらぶ</h2><div class="grid2">'+cards+'</div>'+
+  '<button class="btn ghost block" data-act="subj" data-v="all">5教科をまぜて解く</button>'+
+  '<h2>模擬テスト</h2><section class="card stack"><p class="sub" style="margin:0">本番と同じ 50分・100点満点。大問ごとに出題し、結果は大問別に採点します。</p>'+
+  '<div class="grid2">'+SUBJ.map(function(s){ return '<button class="btn" data-act="mockintro" data-v="'+s+'">'+RAW[s].name+'</button>'; }).join('')+'</div></section>';
+}
+function vSetup(){
+  var s=st8.setup, units=s.s==='all'?[]:RAW[s.s].units;
+  var title=s.s==='all'?'5教科ミックス':RAW[s.s].name;
+  var chips=['<button class="chip" aria-pressed="'+(s.u==='all')+'" data-act="unit" data-v="all">全範囲</button>'].concat(units.map(function(u){
+    return '<button class="chip" aria-pressed="'+(s.u===u)+'" data-act="unit" data-v="'+esc(u)+'">'+esc(u)+'</button>'; })).join('');
+  return '<header class="row"><button class="btn ghost" data-act="home" aria-label="戻る">戻る</button><h2>'+title+'</h2></header>'+
+  (units.length?'<section class="card stack"><span class="tag">単元</span><div class="row wrap">'+chips+'</div></section>':'')+
+  '<p class="sub">10問出題します。前に間違えた問題と未挑戦の問題を優先して選びます。</p>'+
+  '<button class="btn block" data-act="start">はじめる</button>';
+}
+function vQuiz(){
+  var z=st8.quiz, q=z.items[z.i], done=z.given!==null, h='';
+  h='<div class="qtop"><div class="grow bar blue" role="progressbar"><i style="width:'+Math.round(z.i/z.items.length*100)+'%"></i></div><span class="num sub">'+(z.i+1)+' / '+z.items.length+'</span><button class="chip" data-act="quit">やめる</button></div>'+qHead(q,false);
+  if(q.t==='mc'){
+    h+='<div class="choices">'+z.opts.map(function(o,i){
+      var cls='ch'; if(done){ if(o===q.a) cls+=' ok'; else if(o===z.given) cls+=' ng'; }
+      return '<button class="'+cls+'" data-act="pick" data-v="'+i+'" '+(done?'disabled':'')+'><span class="k">'+LETTERS[i]+'</span><span class="t">'+esc(o)+'</span></button>';
+    }).join('')+'</div>';
+  }else{
+    h+='<section class="stack"><input id="ans" class="ansbox" type="text" inputmode="none" autocomplete="off" placeholder="答えを入力" aria-label="答え" '+(done?'disabled value="'+esc(z.given)+'"':'')+'>'+
+      (done?'':keypadHtml('<button class="pri" data-act="submit">答える</button>'))+'</section>';
+  }
+  if(done){
+    var ok=z.right, last=z.i===z.items.length-1;
+    h+='<div class="fb '+(ok?'ok':'ng')+'" role="status"><b>'+(ok?'正解':'不正解')+'</b>'+(ok?'':'　正解は「'+dispA(q.a)+'」')+'<p>'+esc(q.ex.replace(/^放送文：.*$/,''))+'</p>'+(q.au?scriptHtml(q):'')+'</div>'+
+    '<button class="btn block" data-act="next">'+(last?'結果を見る':'次の問題')+'</button>';
+  }
+  if(q.s==='math'||q.s==='sci') h+=padHtml();
+  return h;
+}
+function reviewBody(q){
+  return (q.pid?'<p class="passage sub" style="margin:8px 0">'+esc(PASS[q.pid])+'</p>':'')+'<p class="ans">正解：'+dispA(q.a)+'</p>'+(q.au?scriptHtml(q):'<p class="ex">'+esc(q.ex)+'</p>');
+}
+function vResult(){
+  var z=st8.quiz, n=z.items.length, r=pct(z.ok,n);
+  var msg=r>=90?'すばらしい出来です。':r>=70?'よくできています。':r>=50?'あと少し。復習すれば伸びます。':'間違えた問題を見直しましょう。';
+  var miss=z.miss.length?'<h2>間違えた問題</h2><div class="stack">'+z.miss.map(function(q){
+    return '<details class="rv" open><summary>'+esc(q.q)+'</summary>'+reviewBody(q)+'</details>'; }).join('')+'</div>':'<p class="sub">全問正解です。</p>';
+  return '<header><h1><span class="mark">結果</span></h1></header>'+
+  '<section class="card stack"><div class="row" style="align-items:baseline"><span class="big">'+z.ok+'</span><span class="num sub">/ '+n+' 問正解（'+r+'%）</span></div><p style="margin:0">'+msg+'</p></section>'+miss+
+  '<div class="stack"><button class="btn block" data-act="again">もう一度解く</button><button class="btn ghost block" data-act="home">ホームへ</button></div>';
+}
+function vReview(){
+  var w=wrongList();
+  if(!w.length) return '<header><h1><span class="mark">復習</span></h1></header><div class="card empty">いま復習が必要な問題はありません。<br>間違えた問題はここにたまります。</div>';
+  var items=w.map(function(q){
+    return '<details class="rv"><summary><span class="tag">'+RAW[q.s].name+'　'+esc(q.u)+'</span><br>'+esc(q.q)+'</summary>'+reviewBody(q)+'</details>'; }).join('');
+  return '<header><h1><span class="mark">復習</span></h1><p class="sub">最後に間違えた問題が '+w.length+' 問あります。正解すると、このリストから消えます。</p></header>'+
+  '<button class="btn block" data-act="reviewgo">間違えた問題を解く</button><div class="stack">'+items+'</div>';
+}
+function vRecords(){
+  var days=[], names=['日','月','火','水','木','金','土'], m={};
+  S.log.forEach(function(e){ var o=m[e.d]||(m[e.d]={c:0,w:0}); if(e.ok) o.c++; else o.w++; });
+  for(var i=6;i>=0;i--){ var d=new Date(); d.setDate(d.getDate()-i); var k=dkey(d); days.push({k:k,l:names[d.getDay()],md:(d.getMonth()+1)+'/'+d.getDate(),c:(m[k]||{c:0}).c,w:(m[k]||{w:0}).w}); }
+  var g=S.goal||10, mx=Math.max(g,5,Math.max.apply(null,days.map(function(x){return x.c+x.w;})));
+  mx=Math.ceil(mx/5)*5;
+  var W=320,H=170,L=26,B=26,T=10,pw=W-L-4,ph=H-B-T, bw=pw/7;
+  function Y(v){ return T+ph-v/mx*ph; }
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="直近7日間の解答数">';
+  [0,mx/2,mx].forEach(function(v){ svg+='<line x1="'+L+'" x2="'+(W-4)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--line)" stroke-width="1"/><text x="'+(L-4)+'" y="'+(Y(v)+3)+'" text-anchor="end">'+Math.round(v)+'</text>'; });
+  days.forEach(function(x,i){
+    var cx=L+i*bw+bw/2, bwid=bw*0.5, hc=x.c/mx*ph, hw=x.w/mx*ph;
+    if(x.c) svg+='<rect x="'+(cx-bwid/2)+'" y="'+(Y(0)-hc)+'" width="'+bwid+'" height="'+hc+'" fill="var(--good)"/>';
+    if(x.w) svg+='<rect x="'+(cx-bwid/2)+'" y="'+(Y(0)-hc-hw)+'" width="'+bwid+'" height="'+hw+'" fill="var(--bad)"/>';
+    svg+='<text x="'+cx+'" y="'+(H-12)+'" text-anchor="middle">'+x.md+'</text><text x="'+cx+'" y="'+(H-2)+'" text-anchor="middle">'+x.l+'</text>';
+  });
+  svg+='<line x1="'+L+'" x2="'+(W-4)+'" y1="'+Y(g)+'" y2="'+Y(g)+'" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="'+(W-6)+'" y="'+(Y(g)-3)+'" text-anchor="end" style="fill:var(--blue)">目標 '+g+'</text></svg>';
+  var st=stats(), tot=0,cor=0; S.log.forEach(function(e){tot++;cor+=e.ok;});
+  var ur='';
+  SUBJ.forEach(function(s){
+    RAW[s].units.forEach(function(u){
+      var n=0,c=0; ALL.forEach(function(q){ if(q.s===s&&q.u===u&&st[q.id]){ n+=st[q.id].n; c+=st[q.id].c; } });
+      ur+='<div class="urow"><span>'+RAW[s].name+'・'+esc(u)+'</span><div class="bar blue"><i style="width:'+pct(c,n)+'%"></i></div><span class="v">'+(n?pct(c,n)+'% ('+n+')':'未挑戦')+'</span></div>';
+    });
+  });
+  var hist=S.mocks.length?S.mocks.slice(-6).reverse().map(function(r){
+    var dd=r.d.split('-');
+    return '<div class="hist"><span>'+(+dd[1])+'/'+(+dd[2])+'</span><span>'+MOCK[r.s].name+'</span><div class="bar"><i style="width:'+r.score+'%"></i></div><span class="num" style="text-align:right">'+r.score+'点</span></div>';
+  }).join(''):'<p class="sub" style="margin:0">模擬テストを受けると、ここに点数が残ります。</p>';
+  return '<header><h1><span class="mark">記録</span></h1></header>'+
+  '<section class="card stack"><span class="tag">模擬テストの点数（100点満点）</span>'+hist+'</section>'+
+  '<section class="card stack"><div class="row between"><span class="tag">直近7日間の解答数</span></div>'+svg+'<div class="legend"><span><i style="background:var(--good)"></i>正解</span><span><i style="background:var(--bad)"></i>不正解</span></div></section>'+
+  '<section class="card stack"><div class="row between"><span class="tag">通算</span><span class="num">'+tot+' 問 / 正答率 '+(tot?pct(cor,tot)+'%':'―')+'</span></div></section>'+
+  '<section class="card stack"><span class="tag">単元ごとの正答率（括弧内は解答数）</span>'+(tot?ur:'<p class="sub" style="margin:0">問題を解くとここに表示されます。</p>')+'</section>'+
+  '<section class="card stack"><span class="tag">1日の目標</span><div class="row"><button class="btn ghost" data-act="gminus" aria-label="目標を減らす">−</button><span class="grow num" style="text-align:center;font-size:20px">'+g+' 問</span><button class="btn ghost" data-act="gplus" aria-label="目標を増やす">＋</button></div></section>'+
+  '<section class="card stack"><span class="tag">データ</span><p class="sub" style="margin:0">記録はこの端末のブラウザに保存されます。別の端末とは共有されません。</p>'+
+  (st8.confirmReset?'<div class="row"><button class="btn grow" style="background:var(--bad);color:var(--bg)" data-act="resetyes">すべて消す</button><button class="btn ghost grow" data-act="resetno">やめる</button></div>':'<button class="btn ghost" data-act="reset">記録をリセット</button>')+'</section>';
+}
+
+/* ===== 模擬テスト ===== */
+function buildMock(s){
+  var def=MOCK[s], ids=[], secs=[], opts={};
+  def.secs.forEach(function(sec,si){
+    var pool=ALL.filter(function(q){return q.s===s&&q.cat===sec.cat;}), pick=[];
+    if(sec.passages){
+      var seen={}; pool.forEach(function(q){ if(q.pid) seen[q.pid]=1; });
+      var pids=shuffle(Object.keys(seen)).slice(0,sec.passages);
+      pids.forEach(function(p){ pick=pick.concat(pool.filter(function(q){return q.pid===p;})); });
+    }else pick=shuffle(pool).slice(0,sec.n);
+    pick.forEach(function(q){ ids.push(q.id); secs.push(si); if(q.t==='mc') opts[q.id]=shuffle([q.a].concat(q.w)); });
+  });
+  return {s:s,ids:ids,secs:secs,opts:opts,ans:{},i:0,plays:{},pads:{},startAt:Date.now(),endAt:Date.now()+MOCK_SEC*1000};
+}
+function startTimer(){
+  if(st8.tick) clearInterval(st8.tick);
+  st8.tick=setInterval(function(){
+    if(st8.mode!=='mock'||!st8.mock){ clearInterval(st8.tick); st8.tick=null; return; }
+    var rem=Math.round((st8.mock.endAt-Date.now())/1000), el=document.getElementById('tmr');
+    if(el){ el.textContent=mmss(rem); el.classList.toggle('warn',rem<=300); }
+    if(rem<=0) finishMock();
+  },1000);
+}
+function vMockIntro(){
+  var s=st8.mockS, d=MOCK[s];
+  var rows=d.secs.map(function(x){ var n=x.passages?x.passages*x.per:x.n; return '<div class="urow" style="grid-template-columns:minmax(0,1fr) 6em"><span>'+x.t+'</span><span class="v">'+n+'問 '+(n*x.pts)+'点</span></div>'; }).join('');
+  var EX={math:'<li>答えが数値の問題は、画面のキーパッドで入力します。分数は 3/4 のように入力してください。</li><li>下のメモ用紙で手書き計算ができます。</li>',
+    sci:'<li>答えが数値の問題は、画面のキーパッドで入力します。単位は入れなくて大丈夫です。</li><li>下のメモ用紙で手書き計算ができます。</li>',
+    soc:'<li>時差や縮尺など、数値で答える問題はキーパッドで入力します。</li>',
+    jpn:'<li>古文は1題（4問）、現代文は2題（各4問）出題されます。本文は問題の上に表示されます。</li>',
+    eng:'<li>リスニングは各問2回まで再生できます。音声はこの端末の読み上げ機能です。</li><li>長文は2題（各3問）出題されます。</li>'};
+  var extra=EX[s];
+  return '<header class="row"><button class="btn ghost" data-act="home">戻る</button><h2>'+d.name+'の模擬テスト</h2></header>'+
+  '<section class="card stack"><span class="tag">構成（100点満点・50分）</span>'+rows+'</section>'+
+  '<section class="card"><ul style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:14px"><li>はじめるとタイマーが動きます。時間になると自動で採点します。</li><li>問題の行き来は自由です。答えは何度でも変更できます。</li>'+extra+'</ul></section>'+
+  '<p class="sub">問題は練習用の問題集から本番の形式に合わせて出題します。都立入試の実際の問題とは異なります。</p>'+
+  '<button class="btn block" data-act="mstart">テストをはじめる</button>';
+}
+function vMock(){
+  var m=st8.mock, id=m.ids[m.i], q=BYID[id], sec=MOCK[m.s].secs[m.secs[m.i]], n=m.ids.length, given=m.ans[id];
+  var rem=Math.round((m.endAt-Date.now())/1000);
+  var h='<div class="mtop"><span class="timer'+(rem<=300?' warn':'')+'" id="tmr">'+mmss(rem)+'</span><span class="sub grow">残り時間</span><button class="chip" data-act="msubmit">提出</button></div>';
+  if(st8.confirmSubmit){
+    var un=m.ids.filter(function(x){return !m.ans[x];}).length;
+    h+='<section class="card stack"><p style="margin:0">'+(un?'未回答の問題が '+un+' 問あります。':'すべての問題に答えています。')+'提出して採点しますか？</p><div class="row"><button class="btn grow" data-act="mfinish">提出する</button><button class="btn ghost grow" data-act="mback">続ける</button></div></section>';
+  }
+  h+='<div class="row between"><span class="sec">'+sec.t+'</span><span class="num sub">問'+(m.i+1)+' / '+n+'（'+sec.pts+'点）</span></div>'+qHead(q,true);
+  if(q.t==='mc'){
+    h+='<div class="choices">'+m.opts[id].map(function(o,i){
+      return '<button class="ch'+(given===o?' sel':'')+'" data-act="mpick" data-v="'+i+'"><span class="k">'+LETTERS[i]+'</span><span class="t">'+esc(o)+'</span></button>'; }).join('')+'</div>';
+  }else{
+    h+='<section class="stack"><input id="ans" class="ansbox" type="text" inputmode="none" autocomplete="off" placeholder="答えを入力" aria-label="答え" value="'+esc(given||'')+'">'+keypadHtml('<button class="pri" data-act="mnext">次へ</button>')+'</section>';
+  }
+  h+='<div class="row"><button class="btn ghost grow" data-act="mprev" '+(m.i===0?'disabled':'')+'>前の問題</button><button class="btn ghost grow" data-act="mnext" '+(m.i===n-1?'disabled':'')+'>次の問題</button></div>';
+  h+='<section class="card stack"><span class="tag">問題一覧（黒は回答済み）</span><div class="qgrid">'+m.ids.map(function(x,i){ return '<button class="'+(m.ans[x]?'done':'')+(i===m.i?' cur':'')+'" data-act="mgo" data-v="'+i+'" aria-label="問'+(i+1)+'">'+(i+1)+'</button>'; }).join('')+'</div></section>';
+  if(q.s==='math'||q.s==='sci'){ st8.pad=m.pads[id]||(m.pads[id]=[]); h+=padHtml(); }
+  return h;
+}
+function finishMock(){
+  var m=st8.mock; if(!m) return;
+  if(st8.tick){ clearInterval(st8.tick); st8.tick=null; }
+  try{ if(ttsOK) speechSynthesis.cancel(); }catch(e){}
+  var def=MOCK[m.s], secScore=def.secs.map(function(){return {got:0,max:0};}), rows=[], score=0, d=dkey(new Date());
+  m.ids.forEach(function(id,i){
+    var q=BYID[id], si=m.secs[i], pts=def.secs[si].pts, g=m.ans[id], ok=isRight(q,g);
+    secScore[si].max+=pts; if(ok){ secScore[si].got+=pts; score+=pts; }
+    if(g){ S.log.push({d:d,id:id,ok:ok?1:0}); }
+    rows.push({q:q,given:g||'',ok:ok,pts:pts});
+  });
+  var used=Math.min(MOCK_SEC,Math.round((Math.min(Date.now(),m.endAt)-m.startAt)/1000));
+  S.mocks.push({d:d,s:m.s,score:score,used:used}); save(); clearMock(); scheduleSync();
+  st8.mres={s:m.s,score:score,used:used,secScore:secScore,rows:rows,def:def};
+  st8.mock=null; st8.mode='mockresult'; st8.confirmSubmit=false; render(); window.scrollTo(0,0);
+}
+
+/* ===== テスト後の分析 ===== */
+var TIPS={
+ '単語':'単語帳で、間違えた単語を声に出して覚え直しましょう。','文法':'間違えた文を、正しい形で一度ノートに書き写すと定着します。','熟語':'熟語は例文ごと覚えると忘れにくいです。','会話':'会話文は、場面と話し手の意図を先に読むと選びやすくなります。','並べ替え':'主語と動詞を先に決めてから、残りを並べましょう。','長文':'設問を先に読んでから本文に戻る練習をしましょう。','リスニング':'放送文を見て確認し、もう一度聞く練習が効果的です。',
+ '漢字読み':'間違えた漢字は、読みを書いて覚えましょう。毎日5個ずつがおすすめです。','漢字書き':'間違えた漢字は、3回書いて覚え直しましょう。','語句':'意味があいまいな語句は、短文を自分で作ってみましょう。','国語|文法':'品詞と活用の表を見直しましょう。','古文':'古文単語と歴史的仮名遣いを整理しましょう。','現代文':'本文の根拠になる一文に線を引いてから選択肢を見ましょう。',
+ '物理':'公式（オームの法則など）を書き出して、単位つきで計算練習しましょう。','化学':'質量保存と比の計算を、図を書いて整理しましょう。','生物':'用語を図とセットで覚え直しましょう。','地学':'天体や天気の仕組みを、図で説明できるか確かめましょう。',
+ '地理':'地図帳と一緒に、位置と特色をセットで覚えましょう。','歴史':'年表をつくり、出来事を原因と結果でつなげて覚えましょう。','公民':'用語の意味を自分の言葉で説明できるようにしましょう。',
+ '計算':'途中式を丁寧に書き、符号ミスがないか確認しましょう。'
+};
+function analyzeMock(r){
+  var by={};
+  r.rows.forEach(function(x){ var u=x.q.u, o=by[u]||(by[u]={u:u,n:0,c:0,blank:0}); o.n++; if(x.ok) o.c++; if(!x.given) o.blank++; });
+  var arr=Object.keys(by).map(function(k){ var o=by[k]; o.r=o.c/o.n; return o; });
+  var weak=arr.filter(function(o){return o.n>=2&&o.r<0.6;}).sort(function(a,b){return a.r-b.r||b.n-a.n;}).slice(0,3);
+  var strong=arr.filter(function(o){return o.n>=2&&o.r>=0.8;}).sort(function(a,b){return b.r-a.r||b.n-a.n;}).slice(0,3);
+  var blank=r.rows.filter(function(x){return !x.given;}).length;
+  var h='<section class="card stack"><span class="tag">結果の分析</span>';
+  var sc=r.score;
+  h+='<p style="margin:0">'+(sc>=80?'とてもよくできています。この調子で、ミスした問題を確実に直していきましょう。':sc>=60?'基本はできています。苦手な単元を直せば、さらに点が伸びます。':sc>=40?'あと少しで半分以上です。まずは苦手な単元から1つずつ片づけましょう。':'まだ伸びしろがたくさんあります。やさしい単元から確実に点を取りましょう。')+'</p>';
+  if(strong.length) h+='<div><span class="tag">得意なところ</span>'+strong.map(function(o){return '<div class="urow" style="grid-template-columns:minmax(0,1fr) 5em"><span>'+esc(o.u)+'</span><span class="v">'+o.c+' / '+o.n+'</span></div>';}).join('')+'</div>';
+  if(weak.length){
+    h+='<div><span class="tag">がんばりたいところ</span>'+weak.map(function(o){
+      return '<div class="urow" style="grid-template-columns:minmax(0,1fr) 5em"><span>'+esc(o.u)+'</span><span class="v">'+o.c+' / '+o.n+'</span></div><p class="sub" style="margin:2px 0 8px">'+esc(TIPS[r.s+'|'+o.u]||TIPS[o.u]||'間違えた問題を見直しましょう。')+'</p><button class="chip" data-act="pracunit" data-v="'+r.s+'|'+esc(o.u)+'">この単元を練習する</button>';
+    }).join('')+'</div>';
+  }else if(!strong.length) h+='<p class="sub" style="margin:0">単元ごとの差は、はっきり出ませんでした。全体をまんべんなく復習しましょう。</p>';
+  var notes=[];
+  if(blank>=3) notes.push('未回答が '+blank+' 問ありました。わからなくても、選択問題は最後に選んでおくと得点のチャンスが残ります。');
+  var tl=r.used/MOCK_SEC;
+  if(tl<0.6&&sc<70) notes.push('時間を '+Math.round((1-tl)*100)+'% 残して終わっています。見直しの時間にまわすと、ケアレスミスを減らせます。');
+  if(tl>=0.97&&blank>=3) notes.push('時間がぎりぎりでした。わからない問題は先に飛ばして、解ける問題から取りましょう。');
+  var worstSec=-1,wr=2; r.def.secs.forEach(function(x,i){ var m=r.secScore[i]; if(m.max&&m.got/m.max<wr){ wr=m.got/m.max; worstSec=i; } });
+  if(worstSec>=0&&wr<0.6) notes.push('大問のなかでは「'+r.def.secs[worstSec].t.replace(/^大問\d+　/,'')+'」が最も点を落としています。次はここを重点的に。');
+  var prev=S.mocks.filter(function(m){return m.s===r.s;}).slice(0,-1);
+  if(prev.length){ var pb=prev[prev.length-1].score, df=sc-pb; notes.push('前回の'+r.def.name+'の模擬テストより '+(df>0?df+' 点アップしました。':df<0?(-df)+' 点下がりました。次で取り戻しましょう。':'同じ点数でした。')); }
+  if(notes.length) h+='<ul style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:14px">'+notes.map(function(n){return '<li>'+esc(n)+'</li>';}).join('')+'</ul>';
+  h+='<p class="sub" style="margin:0">この分析は、今回の点数にもとづく自動の目安です。</p></section>';
+  return h;
+}
+function vMockResult(){
+  var r=st8.mres, def=r.def;
+  var secs=def.secs.map(function(x,i){ return '<div class="urow" style="grid-template-columns:minmax(0,1fr) 5em"><span>'+x.t+'</span><span class="v">'+r.secScore[i].got+' / '+r.secScore[i].max+'</span></div>'; }).join('');
+  var list=r.rows.map(function(x,i){
+    return '<details class="rv"'+(x.ok?'':' open')+'><summary><span class="mk '+(x.ok?'ok':'ng')+'">'+(x.ok?'○':'×')+'</span>　問'+(i+1)+'　'+esc(x.q.q.split('\n')[0])+'</summary>'+
+      '<p class="ex" style="color:var(--ink)">あなたの答え：'+(x.given?dispA(x.given):'未回答')+'</p>'+reviewBody(x.q)+'</details>'; }).join('');
+  return '<header><h1><span class="mark">'+def.name+'の模擬テスト結果</span></h1></header>'+
+  '<section class="card stack"><div class="row" style="align-items:baseline"><span class="big">'+r.score+'</span><span class="num sub">/ 100 点</span></div><p class="sub" style="margin:0">使った時間 '+mmss(r.used)+'</p></section>'+
+  '<section class="card stack"><span class="tag">大問ごとの得点</span>'+secs+'</section>'+analyzeMock(r)+
+  '<h2>答え合わせ</h2><div class="stack">'+list+'</div>'+
+  '<div class="stack"><button class="btn block" data-act="home">ホームへ</button><button class="btn ghost block" data-act="gorev">間違えた問題を復習する</button></div>';
+}
+
+
+/* ===== 友達ランキング ===== */
+var RK={tab:'week',sub:'total',data:null,loading:false,err:'',confirmLeave:false,syncT:null,form:{room:'',nick:''},at:null};
+function wkStart(d){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function rankStats(){
+  var cur=wkStart(new Date()), prev=new Date(cur); prev.setDate(prev.getDate()-7);
+  var c=dkey(cur), p=dkey(prev), wc=0, wk=0, lw=0;
+  S.log.forEach(function(e){ if(e.d>=c){ wc++; wk+=e.ok; } else if(e.d>=p){ lw++; } });
+  var b={math:0,eng:0,jpn:0,sci:0,soc:0}; S.mocks.forEach(function(r){ if(b[r.s]!==undefined) b[r.s]=Math.max(b[r.s],r.score); });
+  return {week:c, wc:wc, wk:wk, lw:lw, mb:b.math, eb:b.eng, jb:b.jpn, sb:b.sci, cb:b.soc};
+}
+function rkFetch(url,opt){
+  var ctl=('AbortController' in window)?new AbortController():null, t=ctl?setTimeout(function(){ctl.abort();},25000):0;
+  if(ctl) opt=Object.assign({signal:ctl.signal},opt||{});
+  return fetch(url,opt).then(function(r){ clearTimeout(t); return r.text().then(function(tx){ try{ return JSON.parse(tx); }catch(e){ throw new Error('応答が不正 HTTP'+r.status+' '+tx.replace(/\s+/g,' ').slice(0,60)); } }); });
+}
+function rkPost(o){ return rkFetch(RANK_URL,{method:'POST',body:JSON.stringify(o)}); }
+function rkGet(o){ return rkFetch(RANK_URL+(RANK_URL.indexOf('?')<0?'?':'&')+new URLSearchParams(o).toString()); }
+function rkBase(a){ var r=S.rank; return Object.assign({a:a,room:r.room,dev:r.dev},rankStats()); }
+function newDev(){ try{ if(crypto.randomUUID) return crypto.randomUUID(); }catch(e){} var s=''; for(var i=0;i<24;i++) s+=Math.floor(Math.random()*16).toString(16); return s; }
+function scheduleSync(){
+  if(!RANK_URL||!S.rank) return; clearTimeout(RK.syncT);
+  RK.syncT=setTimeout(function(){ rkPost(rkBase('sync')).then(function(j){ if(j&&(j.error==='not_joined'||j.error==='badroom')){ S.rank=null; save(); } }).catch(function(){}); },4000);
+}
+var RK_ERR={badroom:'合言葉がちがいます。',taken:'そのニックネームはもう使われています。',ng:'そのニックネームは使えません。',invalid:'ニックネームは1〜10文字で、記号は使わないでください。',full:'部屋がいっぱいです。',not_configured:'ランキングの設定がまだ終わっていません。'};
+function rkRefresh(){
+  if(!S.rank){ render(); return; }
+  RK.loading=true; RK.err=''; render();
+  rkPost(rkBase('sync')).catch(function(){ return null; }).then(function(j){
+    if(j&&!j.ok&&(j.error==='not_joined'||j.error==='badroom')) throw j;
+    return rkGet({a:'rank',room:S.rank.room,dev:S.rank.dev});
+  }).then(function(j){
+    if(!j.ok) throw j; if(!j.joined) throw {error:'not_joined'};
+    RK.data=j; RK.at=new Date(); RK.loading=false; render();
+  }).catch(function(e){
+    RK.loading=false;
+    if(e&&(e.error==='not_joined'||e.error==='badroom')){ S.rank=null; save(); RK.err=e.error==='badroom'?'合言葉が変わりました。もう一度参加してください。':'ランキングから外れました。もう一度参加してください。'; }
+    else RK.err='ランキングにつながりませんでした。電波のよいところでもう一度ためしてください。';
+    render();
+  });
+}
+function rkJoin(){
+  var room=document.getElementById('rk-room').value.trim(), nick=document.getElementById('rk-nick').value.replace(/\s+/g,' ').trim();
+  RK.form={room:room,nick:nick};
+  if(!room||!nick){ RK.err='合言葉とニックネームを入力してください。'; render(); return; }
+  var dev=newDev(); RK.loading=true; RK.err=''; render();
+  rkPost(Object.assign({a:'join',room:room,dev:dev,nick:nick},rankStats())).then(function(j){
+    if(!j.ok){ RK.loading=false; RK.err=RK_ERR[j.error]||'うまく参加できませんでした。'; render(); return; }
+    S.rank={room:room,nick:j.nick,dev:dev}; save(); RK.err=''; rkRefresh();
+  }).catch(function(e){ RK.loading=false; RK.err='通信できませんでした。電波のよいところでもう一度ためしてください。［'+(e&&(e.name+': '+e.message)||e)+'］'; render(); });
+}
+function rkLeave(){
+  var r=S.rank; if(!r) return;
+  rkPost({a:'leave',room:r.room,dev:r.dev}).catch(function(){});
+  S.rank=null; save(); RK.data=null; RK.confirmLeave=false; RK.err=''; render();
+}
+function rankCard(){
+  if(!RANK_URL) return '';
+  if(S.rank) return '<section class="card row between"><div class="grow"><span class="tag">友達ランキング</span><p style="margin:0">'+esc(S.rank.nick)+' で参加中</p></div><button class="btn ghost" data-act="tab" data-v="rank">見る</button></section>';
+  return '<section class="card stack"><span class="tag">友達ランキング</span><p style="margin:0">友達だけのランキングに参加できます。合言葉は友達に聞いてください。</p><button class="btn" data-act="tab" data-v="rank">参加する</button></section>';
+}
+var RK_BOARDS={
+  week:{t:'今週の問題数',unit:'問',plus:false},
+  growth:{t:'先週からの伸び',unit:'問',plus:true},
+  total:{t:'模擬テスト',unit:'点',plus:false,mock:true}
+};
+var RK_SUB=[['total','5教科合計'],['jpn','国語'],['math','数学'],['eng','英語'],['sci','理科'],['soc','社会']];
+function rkNote(k,d){
+  if(k==='week') return '今週（月曜日から）に解いた問題の数です。毎週月曜日の0時にリセットされます。';
+  if(k==='growth') return '今週の問題数から先週の問題数をひいた数です。先週より増えた人だけが載ります。';
+  if(k==='total') return '5教科すべての模擬テストを受けた人の、教科ごとのベスト点の合計です（500点満点）。';
+  return '模擬テストのベスト点（100点満点）です。';
+}
+function rkRows(b,def){
+  if(!b.top.length) return '<p class="sub" style="margin:0">まだランキングに入った人がいません。</p>';
+  var h='<div class="stack">'+b.top.map(function(r){
+    return '<div class="rkrow'+(r.you?' you':'')+'"><span class="rkn'+(r.r<=3?' t':'')+'">'+r.r+'</span><span class="rkname">'+esc(r.nick)+(r.you?'（あなた）':'')+'</span><span class="rkv num">'+(def.plus?'+':'')+r.v+'<small>'+def.unit+'</small></span></div>';
+  }).join('')+'</div>';
+  if(b.me&&!b.top.some(function(r){return r.you;})) h+='<div class="rkrow you" style="margin-top:10px"><span class="rkn">'+b.me.r+'</span><span class="rkname">あなた</span><span class="rkv num">'+(def.plus?'+':'')+b.me.v+'<small>'+def.unit+'</small></span></div>';
+  else if(!b.me) h+='<p class="sub" style="margin:10px 0 0">あなたはまだ入っていません。'+(def.unit==='点'?'模擬テストを受けると載ります。':'問題を解くと載ります。')+'</p>';
+  return h;
+}
+function vRank(){
+  var head='<header><h1><span class="mark">ランキング</span></h1></header>';
+  if(!S.rank){
+    var f=RK.form;
+    return head+'<section class="card stack"><p style="margin:0">友達だけのランキングです。教えてもらった合言葉と、ニックネームを入力してください。</p>'+
+    '<label class="tag" for="rk-room">合言葉</label><input id="rk-room" class="ansbox" style="text-align:left;font-size:18px" type="text" autocomplete="off" autocapitalize="none" value="'+esc(f.room)+'">'+
+    '<label class="tag" for="rk-nick">ニックネーム（10文字まで）</label><input id="rk-nick" class="ansbox" style="text-align:left;font-size:18px" type="text" maxlength="10" autocomplete="off" value="'+esc(f.nick)+'">'+
+    '<div class="notice">本名・学校名・連絡先は入れないでください。ニックネームは参加している友達全員に見えます。送られるのは、ニックネームと解いた問題の数、模擬テストの点数だけです。</div>'+
+    (RK.err?'<div class="fb ng" role="alert">'+esc(RK.err)+'</div>':'')+
+    '<button class="btn block" data-act="rjoin" '+(RK.loading?'disabled':'')+'>'+(RK.loading?'つないでいます…':'参加する')+'</button></section>';
+  }
+  var d=RK.data, k=RK.tab, def=RK_BOARDS[k], bk=k==='total'?RK.sub:k;
+  if(k==='total'&&RK.sub!=='total') def={t:RK_SUB.filter(function(x){return x[0]===RK.sub;})[0][1]+'の模擬',unit:'点',plus:false};
+  var chips=Object.keys(RK_BOARDS).map(function(x){ return '<button class="chip" aria-pressed="'+(x===k)+'" data-act="rtab" data-v="'+x+'">'+RK_BOARDS[x].t+'</button>'; }).join('');
+  if(k==='total') chips+='</div><div class="row wrap">'+RK_SUB.map(function(x){ return '<button class="chip" aria-pressed="'+(x[0]===RK.sub)+'" data-act="rsub" data-v="'+x[0]+'">'+x[1]+'</button>'; }).join('');
+  var body;
+  if(RK.loading&&!d) body='<p class="sub" style="margin:0">読みこみ中…</p>';
+  else if(!d) body='<p class="sub" style="margin:0">ランキングを読みこめませんでした。</p>';
+  else body='<span class="tag">'+def.t+'（参加 '+d.players+' 人）</span>'+rkRows(d.boards[bk],def)+'<p class="sub" style="margin:0">'+rkNote(k==='total'&&RK.sub!=='total'?'sub':k)+'</p>';
+  return head+'<section class="card row between"><div class="grow"><span class="tag">ニックネーム</span><p style="margin:0;font-weight:700">'+esc(S.rank.nick)+'</p></div><button class="chip" data-act="rrefresh" '+(RK.loading?'disabled':'')+'>'+(RK.loading?'更新中…':'更新')+'</button></section>'+
+  (RK.err?'<div class="fb ng" role="alert">'+esc(RK.err)+'</div>':'')+
+  '<div class="row wrap">'+chips+'</div><section class="card stack">'+body+'</section>'+
+  '<section class="card stack"><span class="tag">ランキングから抜ける</span><p class="sub" style="margin:0">抜けると、ニックネームと記録がサーバーから消えます。</p>'+
+  (RK.confirmLeave?'<div class="row"><button class="btn grow" style="background:var(--bad);color:var(--bg)" data-act="rleaveyes">抜ける</button><button class="btn ghost grow" data-act="rleaveno">やめる</button></div>':'<button class="btn ghost" data-act="rleave">抜ける</button>')+'</section>';
+}
+
+/* ===== 操作 ===== */
+function curInput(){ return document.getElementById('ans'); }
+document.addEventListener('input',function(ev){
+  if(ev.target.id==='ans'&&st8.mode==='mock'){ var m=st8.mock; m.ans[m.ids[m.i]]=ev.target.value.trim(); saveMock(); }
+});
+document.addEventListener('keydown',function(ev){
+  if(ev.target.id==='ans'&&ev.key==='Enter'&&st8.mode==='quiz'){ ev.preventDefault(); var b=document.querySelector('[data-act="submit"]'); if(b) b.click(); }
+});
+document.addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-act]'); if(!b||b.disabled) return;
+  var a=b.dataset.act, v=b.dataset.v, z=st8.quiz, m=st8.mock;
+  if(a==='tab'){ st8.tab=v; st8.mode=null; st8.confirmReset=false; if(v==='rank'&&S.rank){ rkRefresh(); return; } }
+  else if(a==='rtab'){ RK.tab=v; }
+  else if(a==='rsub'){ RK.sub=v; }
+  else if(a==='rrefresh'){ rkRefresh(); return; }
+  else if(a==='rjoin'){ rkJoin(); return; }
+  else if(a==='rleave'){ RK.confirmLeave=true; }
+  else if(a==='rleaveno'){ RK.confirmLeave=false; }
+  else if(a==='rleaveyes'){ rkLeave(); return; }
+  else if(a==='subj'){ st8.setup={s:v,u:'all'}; st8.mode='setup'; }
+  else if(a==='pracunit'){
+    var pu=v.split('|'); st8.setup={s:pu[0],u:pu[1]};
+    startQuiz(buildSet(ALL.filter(function(q){return q.s===pu[0]&&q.u===pu[1];}),10)); return;
+  }
+  else if(a==='unit'){ st8.setup.u=v; }
+  else if(a==='home'){ st8.mode=null; st8.tab='home'; }
+  else if(a==='start'||a==='again'){
+    var s=st8.setup, pool=ALL.filter(function(q){ return (s.s==='all'||q.s===s.s)&&(s.u==='all'||q.u===s.u); });
+    startQuiz(buildSet(pool,10)); return;
+  }
+  else if(a==='reviewgo'){ startQuiz(buildSet(wrongList(),10)); return; }
+  else if(a==='pick'||a==='submit'){
+    if(z.given!==null) return;
+    var q=z.items[z.i], g;
+    if(a==='pick') g=z.opts[+v]; else { var inp=curInput(); g=inp?inp.value.trim():''; if(!g) return; }
+    z.given=g; z.right=isRight(q,g);
+    S.log.push({d:dkey(new Date()),id:q.id,ok:z.right?1:0}); save(); scheduleSync();
+    if(z.right) z.ok++; else z.miss.push(q);
+  }
+  else if(a==='next'){
+    if(z.i>=z.items.length-1){ st8.mode='result'; } else { z.i++; prepOpts(); }
+    render(); window.scrollTo(0,0); return;
+  }
+  else if(a==='quit'){ st8.mode=null; try{ if(ttsOK) speechSynthesis.cancel(); }catch(e){} }
+  else if(a==='key'){
+    var inp2=curInput(); if(!inp2||inp2.disabled) return;
+    if(v==='bs') inp2.value=inp2.value.slice(0,-1); else if(v==='clr') inp2.value=''; else inp2.value+=v;
+    if(st8.mode==='mock'){ m.ans[m.ids[m.i]]=inp2.value.trim(); saveMock(); var nb=document.querySelectorAll('.qgrid button')[m.i]; if(nb) nb.classList.toggle('done',!!m.ans[m.ids[m.i]]); }
+    return;
+  }
+  else if(a==='play'){
+    var pq=BYID[v];
+    if(st8.mode==='mock'){ if((m.plays[v]||0)>=2) return; m.plays[v]=(m.plays[v]||0)+1; saveMock(); playAudio(pq); render(); var st=document.getElementById('audst'); if(st) st.textContent='再生中…'; return; }
+    playAudio(pq); return;
+  }
+  else if(a==='padundo'){ st8.pad.pop(); padRedraw(); return; }
+  else if(a==='padclear'){ st8.pad.length=0; padRedraw(); return; }
+  else if(a==='gplus'){ S.goal=Math.min(50,(S.goal||10)+5); save(); }
+  else if(a==='gminus'){ S.goal=Math.max(5,(S.goal||10)-5); save(); }
+  else if(a==='reset'){ st8.confirmReset=true; }
+  else if(a==='resetno'){ st8.confirmReset=false; }
+  else if(a==='resetyes'){ S={log:[],goal:S.goal||10,mocks:[],rank:S.rank}; save(); st8.confirmReset=false; }
+  /* 模擬テスト */
+  else if(a==='mockintro'){ st8.mockS=v; st8.mode='mockintro'; }
+  else if(a==='mstart'){ st8.mock=buildMock(st8.mockS); saveMock(); st8.mode='mock'; st8.confirmSubmit=false; startTimer(); render(); window.scrollTo(0,0); return; }
+  else if(a==='mresume'){
+    var sm=loadMock(); if(!sm) return;
+    st8.mock={s:sm.s,ids:sm.ids,secs:sm.secs,opts:sm.opts,ans:sm.ans||{},i:sm.i||0,plays:sm.plays||{},pads:{},startAt:sm.startAt,endAt:sm.endAt};
+    if(Date.now()>=sm.endAt){ finishMock(); return; }
+    st8.mode='mock'; st8.confirmSubmit=false; startTimer(); render(); window.scrollTo(0,0); return;
+  }
+  else if(a==='mdiscard'){ clearMock(); }
+  else if(a==='mpick'){ var id=m.ids[m.i]; m.ans[id]=m.opts[id][+v]; saveMock(); }
+  else if(a==='mgo'||a==='mnext'||a==='mprev'){
+    var ni=a==='mgo'?+v:(a==='mnext'?m.i+1:m.i-1);
+    if(ni<0||ni>=m.ids.length) return;
+    try{ if(ttsOK) speechSynthesis.cancel(); }catch(e){}
+    m.i=ni; st8.confirmSubmit=false; saveMock(); render(); window.scrollTo(0,0); return;
+  }
+  else if(a==='msubmit'){ st8.confirmSubmit=true; }
+  else if(a==='mback'){ st8.confirmSubmit=false; }
+  else if(a==='mfinish'){ finishMock(); return; }
+  else if(a==='gorev'){ st8.mode=null; st8.tab='review'; }
+  render();
+});
+render();
+
+</script></body></html>
